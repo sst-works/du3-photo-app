@@ -189,7 +189,7 @@ body.wide.stepping .hdr{font-size:18px}
 <script>
 
 let MODES={},JOBS=[],ME=null,PIN="",JOB=null,VERSION="",BUILD="DEV",WOS=null;
-var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",HOST:"github"};
+var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",HOST:"github",VERSION:"0.4.1",UPDATED:"2026-11-21 3:20 PM ET",CONTRACT:"MBTA Contract C90CN01"};var SERVER_VERSION="";
 var START_WO=String(new URLSearchParams(location.search).get("wo")||"").trim().toUpperCase();if(!/^WO-[0-9A-Z]{1,8}-[0-9]{2}$/.test(START_WO))START_WO="";
 const MODE_INFO={Install:{name:"Field",title:"Install a vehicle",form:"SDD-119 Appendix C Mobile Installation QA Checklist"},
  Bench:{name:"Bench",title:"Program a radio",form:"Build Order and Production Record"},
@@ -235,7 +235,7 @@ function pinScreen(msg){S.screen="pin";$("bar").style.display="none";
  <button class="big red" style="text-align:center" onclick="login()">Continue</button>${msg?`<div class="chip f">${esc(msg)}</div>`:""}
  <p class="note">Ask L3Harris:DU3 for your phone's PIN.</p>${foot()}`}
 async function login(){PIN=($("pin")||{}).value?$("pin").value.trim():PIN;busy("Checking…");
- try{const r=await call("apiHello",PIN);ME=r.device;JOBS=r.jobs;BUILD=r.build;WOS=r.workOrders||null;UNITCARD=!!r.unitCard;try{localStorage.setItem("du3pin",PIN)}catch(e){}purgeClosed();if(START_WO){const w=START_WO;START_WO="";return openWO(w)}if(!resumeCur())home()}catch(e){pinScreen(e.message||String(e))}}
+ try{const r=await call("apiHello",PIN);ME=r.device;JOBS=r.jobs;BUILD=r.build;SERVER_VERSION=r.appVersion||"";WOS=r.workOrders||null;UNITCARD=!!r.unitCard;try{localStorage.setItem("du3pin",PIN)}catch(e){}purgeClosed();if(START_WO){const w=START_WO;START_WO="";return openWO(w)}if(!resumeCur())home()}catch(e){pinScreen(e.message||String(e))}}
 function home(){if(!ME)return pinScreen();S.screen="home";$("bar").style.display="none";$("sub").textContent="· "+BUILD;
  $("app").innerHTML=`<h2>Jobs</h2>${JOBS.length?JOBS.map((J,k)=>`<button class="big" onclick="pickJob(${k})">${esc(J["Job ID"])} · Unit ${esc(J["Unit"])}<small>${esc(J["Vehicle"])} · ${esc(J["Location"])}</small></button>`).join(""):'<p class="note">No open jobs in the library.</p>'}
  ${UNITCARD?`<button class="big" onclick="cardHome()">Look up a unit<small>Unit card: vehicle, radio, QA, ICR (read only)</small></button>`:""}
@@ -486,7 +486,7 @@ function formView(){S.screen="form";const L=lines(),M=MODES[S.mode];const bySec=
  ${(()=>{const q=L.find(l=>l.t==="sign");if(!q)return"";const a=S.ans[q.id]||{},sg=a.sig||{};return `<h3>Sign-off</h3><table>${q.roles.map((r,k)=>`<tr><td>${esc(r)}<br>${esc((sg[k]||{}).name||"")}</td><td>${sg[k]&&sg[k].img?`<img src="${sg[k].img}" style="width:140px"><br>${esc(sg[k].at)} ET`:""}</td></tr>`).join("")}</table>${a.locked?`<p><b>Locked ${esc(a.locked)} ET · fingerprint ${esc(a.hash)}</b></p>`:""}`})()}</div>
  <p class="note">This is the filled Appendix C the app uploads as a PDF with the signatures, time stamps and lock. Records Management files it read-only.</p>
  <button class="big light" onclick="finish()">◀ Back</button>${foot()}`;window.scrollTo(0,0)}
-function foot(){return`<footer><b>One Team, One Solution: Everybody Wins</b><br>DU3 Photo App (DEV) for MBTA Contract C90CN01, in the DU3 Reporting Standard look, by Deveson. L3Harris internal.</footer>`}
+function foot(){return`<footer><b>One Team, One Solution: Everybody Wins</b><br>DU3 Photo App (DEV) for ${esc(DU3.CONTRACT)}, in the DU3 Reporting Standard look, by Deveson. L3Harris internal.<br>App v${esc(DU3.VERSION)} · updated ${esc(DU3.UPDATED)}${SERVER_VERSION?` · server v${esc(SERVER_VERSION)}`:""}</footer>`}
 
 let x0=null,y0=0,t0=0;
 function typingBox(t){return t&&(t.tagName==="TEXTAREA"||(t.tagName==="INPUT"&&/^(text|number|search|email|tel)$/i.test(t.type||"text")))||(t&&t.tagName==="CANVAS")}
