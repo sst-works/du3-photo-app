@@ -1,4 +1,601 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>DU3 Photo App</title>
-<style>body{margin:0;font:18px/1.5 Arial,sans-serif;color:#111;background:#fff;display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center;padding:24px}h1{font-size:32px;margin:0 0 8px}h1 b{color:#c8102e}p{color:#3d4345}</style></head>
-<body><div><h1>DU3<b>.</b> Photo App</h1><p>Setting up. This page will open the DU3 Photo App shortly.</p></div></body></html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>DU3 Photo App (DEV)</title>
+<style>
+:root{--red:#E5232A;--ink:#2A2F2F;--grey:#3D4345;--blue:#1F4E79;--line:#D9DCDD;--ok:#1E7B3A;--na:#B7791F;--bad:#C0262D;--bg:#FFFFFF;--soft:#F4F5F5}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif;font-size:18px}
+header{padding:12px 16px 0}
+header img{height:31px;display:block}
+.title{font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:20px;margin:8px 0 2px}
+.title .du3{color:var(--red)} .title .sub{color:var(--grey);font-weight:400}
+.rule{height:3px;background:var(--red);margin:8px 0 0}
+.ribbon{background:#FFF1E6;color:#9A4A00;font:700 12px Arial,sans-serif;padding:6px 16px;letter-spacing:.3px}
+main{padding:14px 16px 170px}
+h2{font:700 15px Arial,sans-serif;color:var(--blue);margin:18px 0 8px;text-transform:uppercase;letter-spacing:.4px}
+.big{display:block;width:100%;min-height:88px;margin:12px 0;border:0;border-radius:16px;background:var(--ink);color:#fff;font:700 23px Arial,sans-serif;padding:18px 20px;text-align:left}
+.big small{display:block;font:400 16px Arial,sans-serif;opacity:.8;margin-top:4px}
+.big.red{background:var(--red)} label.big{display:flex;align-items:center;justify-content:center} .big.light{background:var(--soft);color:var(--ink);border:2px solid var(--line)}
+table.hdr{width:100%;border-collapse:collapse;font:16px "Courier New",monospace}
+table.hdr td{border-bottom:1px solid var(--line);padding:7px 4px;vertical-align:top}
+table.hdr td:first-child{color:#2F3436;font-weight:700;width:42%}
+.note{font-size:16px;color:#2F3436;line-height:1.4}
+.meta{font:700 16px Arial,sans-serif;color:var(--grey);display:flex;justify-content:space-between;gap:8px}
+.ref{color:var(--blue)}
+.prompt{font:700 27px/1.25 Arial,sans-serif;margin:10px 0 6px}
+.tip{font-size:18px;color:#1F2426;margin-bottom:14px;line-height:1.35}
+.seg{display:flex;gap:10px;margin:12px 0}
+.seg button{flex:1;min-height:80px;border-radius:16px;border:3px solid var(--line);background:#fff;font:700 21px Arial,sans-serif;color:var(--ink)}
+.seg button.on.p{background:var(--ok);border-color:var(--ok);color:#fff}
+.seg button.on.f{background:var(--bad);border-color:var(--bad);color:#fff}
+.seg button.on.n{background:var(--na);border-color:var(--na);color:#fff}
+.seg button.on.d{background:var(--ok);border-color:var(--ok);color:#fff}
+.grp{border-top:1px solid var(--line)}
+.grp .row{padding:10px 0;border-bottom:1px solid var(--line)}
+.grp .row .lbl{font-size:19px;color:#111;font-weight:600;margin-bottom:8px}
+.grp .seg{margin:4px 0}.grp .seg button{min-height:64px;font-size:19px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:8px 0}
+.cell{position:relative}.cell img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:2px solid var(--line);display:block}
+.cell .del{position:absolute;top:6px;right:6px;width:56px;height:56px;border-radius:28px;border:0;background:rgba(0,0,0,.65);color:#fff;font-size:20px}
+.cell .num{position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.65);color:#fff;font:700 13px Arial;padding:2px 8px;border-radius:10px}
+.cell .up{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.7);color:#fff;font:700 13px Arial;padding:3px 8px;border-radius:10px}.cell .up.ok{background:#1E7B3A}.cell .up.fail{background:#B7791F}
+.cell .badge{position:absolute;top:6px;left:6px;background:var(--blue);color:#fff;font:700 11px Arial;padding:3px 7px;border-radius:6px}
+.shot{width:100%;border-radius:12px;border:2px solid var(--line);display:block;margin:8px 0}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}.thumbs img{width:88px;height:88px;object-fit:cover;border-radius:8px;border:2px solid var(--line)}
+input[type=text],input[type=number],textarea{width:100%;font:700 26px "Courier New",monospace;padding:18px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+textarea{font:18px Arial,sans-serif;min-height:84px}
+.chip{display:inline-block;font:700 16px Arial,sans-serif;padding:6px 12px;border-radius:20px;margin:8px 6px 0 0}
+.chip.p{background:#E3F2E7;color:var(--ok)}.chip.f{background:#FBE4E5;color:var(--bad)}.chip.n{background:#FFF3DF;color:var(--na)}.chip.g{background:#E3E6E7;color:#1F2426}
+.notebar{display:flex;gap:8px;margin-top:14px;align-items:flex-start}
+.notebar textarea{flex:1}
+.mic{width:88px;min-height:84px;border-radius:16px;border:3px solid var(--line);background:#fff;font-size:34px}
+.mic.live{background:var(--red);border-color:var(--red)}
+.sigbox{border:2px solid var(--line);border-radius:14px;padding:12px;margin:12px 0}.sigbox .lbl{font-size:18px;margin-bottom:8px}
+.pad{width:100%;height:150px;border:3px dashed var(--blue);border-radius:12px;background:#FAFBFC;margin-top:10px;touch-action:none;display:block}
+.sigimg{width:100%;max-height:150px;object-fit:contain;border-bottom:2px solid var(--ink)}
+.lockbar{background:var(--ink);color:#fff;font:700 17px Arial;padding:12px;border-radius:12px;margin-bottom:10px}
+.ro .seg button,.ro input,.ro textarea,.ro .del,.ro .shoot,.ro .mic{pointer-events:none;opacity:.55}
+.dlg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+.dlgbox{background:#fff;border-radius:18px;padding:18px;width:100%;max-width:520px;max-height:92vh;overflow:auto}
+.dlgmsg{font:700 21px/1.35 Arial,sans-serif;margin-bottom:8px}
+.dlgbox img{width:100%;border-radius:10px;margin:6px 0}
+.shoot{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.shoot input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:200px;cursor:pointer}
+.dobox{background:#F1F5FA;border-left:6px solid var(--blue);border-radius:10px;padding:12px 14px;margin:10px 0 12px}
+.dohead{font:700 15px Arial;color:var(--blue);letter-spacing:.5px}
+.dobox ol{margin:6px 0 0 22px;padding:0}.dobox li{font:19px/1.4 Arial,sans-serif;color:#111;margin:6px 0}
+.src{font:14px Arial;color:#2F3436;margin-top:8px}
+.shotp{font:700 19px/1.35 Arial,sans-serif;color:#111;background:#FFF4E5;border-radius:10px;padding:10px 12px;margin:8px 0}
+.gate{border:2px solid var(--blue);border-radius:12px;padding:12px;margin:10px 0;background:#F1F5FA}
+.gate b{color:var(--blue);font-family:Arial,sans-serif}
+nav.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+.strip{display:flex;gap:3px;margin-bottom:8px;overflow:hidden}
+.strip i{flex:1;height:12px;border-radius:3px;background:var(--line)}
+.strip i.p{background:var(--ok)}.strip i.f{background:var(--bad)}.strip i.n{background:var(--na)}.strip i.cur{outline:2px solid var(--ink);outline-offset:1px}
+.navbtns{display:flex;gap:8px}
+.navbtns button{flex:1;min-height:76px;border:0;border-radius:16px;font:700 21px Arial,sans-serif;background:var(--soft);color:var(--ink)}
+.navbtns .go{background:var(--ink);color:#fff;flex:1.4}
+.navbtns .x{flex:.8;background:#fff;border:2px solid var(--line)}
+.miss li{margin:6px 0}
+.form h3{font:700 14px Arial,sans-serif;color:var(--blue);margin:16px 0 4px;border-bottom:2px solid var(--blue);padding-bottom:3px}
+.form table{width:100%;border-collapse:collapse;font:13px "Courier New",monospace}
+.form td{border:1px solid var(--line);padding:5px;vertical-align:top}
+.form td.r{width:70px;text-align:center;font-weight:700}
+.tag{font:700 11px Arial,sans-serif;color:#fff;background:var(--blue);padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+footer{margin-top:30px;border-top:3px solid var(--red);padding-top:8px;font-size:12px;color:var(--grey)}
+footer b{color:var(--ink);font-family:Arial,sans-serif}
+label.cb{display:flex;gap:14px;align-items:center;font:19px Arial,sans-serif;padding:18px 0;min-height:72px;border-bottom:1px solid var(--line)}
+label.cb input{width:34px;height:34px}
+.speak.live{background:var(--red);color:#fff;border-color:var(--red)}
+.ro .speak{pointer-events:none;opacity:.55}
+#side{display:none}
+
+ body.wide header,body.wide .ribbon,body.wide main{max-width:860px;margin-left:auto;margin-right:auto}
+ body.wide main{padding-bottom:130px}
+ body.wide .grid{grid-template-columns:repeat(4,1fr)}
+ body.wide.stepping header,body.wide.stepping .ribbon,body.wide.stepping main{margin-left:calc(var(--sideW,50vw) + 22px);margin-right:24px;max-width:none}
+ body.wide.stepping nav.bar{left:var(--sideW,50vw)}
+ #side{display:none}
+ body.wide.stepping #side{display:block;position:fixed;left:0;top:0;bottom:0;width:var(--sideW,50vw);overflow-y:auto;background:#fff;border-right:1px solid var(--line);padding:16px 16px 24px;font-size:18px;z-index:20}
+ #side h4{margin:16px 0 6px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--blue)}
+ #side .si{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border-radius:6px;cursor:pointer;color:var(--ink);line-height:1.3}
+ #side .si:hover{background:#F2F4F5}
+ #side .si.cur{background:#FDE8E9;outline:2px solid var(--red)}
+ #side .ic{flex:none;width:20px;text-align:center;font-weight:700}
+ #side .ic.p{color:#1E7B34}#side .ic.f{color:#C0262D}#side .ic.n{color:#6B7173}#side .ic.m{color:#B0B5B7}
+ #side .top{font-weight:700;font-size:21px}
+ #side .note{font-size:15px}
+ #side .si{padding:8px 10px}
+ #side .keys{margin-top:14px;font-size:12px;color:var(--grey);line-height:1.6;border-top:1px solid var(--line);padding-top:8px;font-size:14px}
+ #side kbd{border:1px solid #C9CDCF;border-bottom-width:2px;border-radius:4px;padding:0 5px;font:12px monospace;background:#F7F8F8}
+ #side button.fin{width:100%;margin-top:10px;padding:10px;font-size:16px;font-weight:700;border:0;border-radius:8px;background:var(--red);color:#fff;cursor:pointer}
+ body.dragging main{outline:4px dashed var(--red);outline-offset:-6px}
+.edge{display:none;position:fixed;top:46%;transform:translateY(-50%);width:40px;height:130px;border:0;padding:0;background:rgba(31,42,68,.30);color:#fff;font:700 46px/1 Arial,sans-serif;z-index:15;opacity:.9;transition:opacity .6s,background .15s;-webkit-tap-highlight-color:transparent}
+.edge.l{left:0;border-radius:0 16px 16px 0}.edge.r{right:0;border-radius:16px 0 0 16px}
+.edge:active{opacity:1;background:rgba(229,35,42,.9)}
+body.showedge .edge{display:block}body.showedge .edge.off{display:none}
+body.showedge main{padding-left:46px;padding-right:46px}
+body.edgeidle .edge{opacity:.35}
+main{touch-action:pan-y}
+.big{min-height:58px;margin:8px 0;border-radius:12px;font-size:19px;padding:10px 16px}
+.big small{font-size:14px;margin-top:2px}
+.seg{gap:8px}.seg button{min-height:50px;font-size:17px;border-radius:12px;border-width:2px}
+.navbtns button{min-height:54px;font-size:18px;border-radius:12px}
+input[type=text],input[type=number]{font-size:20px;padding:12px}
+textarea{min-height:64px;padding:12px;font-size:17px}
+.cb{min-height:48px;padding:10px 0;font-size:17px}.cb input{width:26px;height:26px}
+.dobox li{font-size:17px}
+.cell .del,.del{width:42px;height:42px;font-size:17px}
+.edge{height:110px;width:36px;font-size:40px}
+body.showedge main{padding-left:42px;padding-right:42px}
+body.wide .big{min-height:44px;font-size:16px;padding:8px 14px;margin:6px 0}
+body.wide .big small{font-size:13px}
+body.wide .seg button{min-height:40px;font-size:15px}
+body.wide .navbtns button{min-height:44px;font-size:16px}
+body.wide input[type=text],body.wide input[type=number]{font-size:17px;padding:8px}
+body.wide textarea{font-size:15px;min-height:56px}
+body.wide .cb{min-height:40px;font-size:15px}
+body.wide .dobox li{font-size:15px}
+body.wide .big.shoot{min-height:44px!important;font-size:16px!important}
+#split{display:none;position:fixed;top:0;bottom:0;width:12px;margin-left:-6px;left:var(--sideW,50vw);cursor:col-resize;z-index:25;touch-action:none}
+#split::after{content:"";position:absolute;left:5px;top:0;bottom:0;width:2px;background:var(--line)}
+#split:hover::after,#split.drag::after{background:var(--red);width:4px;left:4px}
+#split span{position:absolute;top:50%;left:1px;transform:translateY(-50%);width:10px;height:44px;border-radius:5px;background:#C9CDCF}
+#split:hover span,#split.drag span{background:var(--red)}
+body.wide.stepping #split{display:block}
+body.splitting,body.splitting *{cursor:col-resize!important;user-select:none!important}
+body.wide.stepping main{font-size:20px}
+body.wide.stepping .meta{font-size:18px}
+body.wide.stepping .prompt{font-size:34px;line-height:1.2}
+body.wide.stepping .dohead{font-size:17px}
+body.wide.stepping .dobox li{font-size:20px;line-height:1.45}
+body.wide.stepping .src{font-size:16px}
+body.wide.stepping .shotp{font-size:22px}
+body.wide.stepping .tip{font-size:20px}
+body.wide.stepping .note{font-size:18px}
+body.wide.stepping .lbl{font-size:19px}
+body.wide.stepping .chip{font-size:17px}
+body.wide.stepping .big,body.wide.stepping .big.shoot{min-height:52px!important;font-size:20px!important;padding:10px 16px}
+body.wide.stepping .seg button{min-height:50px;font-size:19px}
+body.wide.stepping .cb{font-size:19px;min-height:48px}
+body.wide.stepping textarea{font-size:19px;min-height:70px}
+body.wide.stepping input[type=text],body.wide.stepping input[type=number]{font-size:21px;padding:10px}
+body.wide.stepping .navbtns button{min-height:50px;font-size:19px}
+body.wide.stepping .hdr{font-size:18px}
+</style>
+</head>
+<body>
+<header>
+  <img src="data:image/png;base64,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" alt="L3Harris">
+  <div class="title"><span class="du3">DU3</span> Photo App <span class="sub" id="sub">· Prototype</span></div>
+  <div class="rule"></div>
+</header>
+<div class="ribbon">DEV · TEST DATA · UPLOADS GO TO TEST CAPTURES</div>
+<aside id="side"></aside>
+<div id="split" title="Drag to resize. Double-click for half and half."><span></span></div>
+<button class="edge l" id="edgeL" onclick="S.screen==='finish'?step(S.i):go(-1)" aria-label="Previous step">‹</button><button class="edge r" id="edgeR" onclick="go(1)" aria-label="Next step">›</button>
+<main id="app"></main>
+<nav class="bar" id="bar" style="display:none">
+  <div class="strip" id="strip"></div>
+  <div class="navbtns">
+    <button onclick="go(-1)">◀ Back</button>
+    <button class="x" onclick="extra()">＋ Extra</button>
+    <button class="go" id="nextBtn" onclick="go(1)">Next ▶</button>
+  </div>
+</nav>
+<script>
+
+let MODES={},JOBS=[],ME=null,PIN="",JOB=null,VERSION="",BUILD="DEV",WOS=null;
+var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",HOST:"github"};
+var START_WO=String(new URLSearchParams(location.search).get("wo")||"").trim().toUpperCase();if(!/^WO-[0-9A-Z]{1,8}-[0-9]{2}$/.test(START_WO))START_WO="";
+const MODE_INFO={Install:{name:"Field",title:"Install a vehicle",form:"SDD-119 Appendix C Mobile Installation QA Checklist"},
+ Bench:{name:"Bench",title:"Program a radio",form:"Build Order and Production Record"},
+ Paper:{name:"Paper",title:"Upload the paper checklist",sub:"Job done on the paper Appendix C: photograph its 5 pages",form:"SDD-119 Appendix C (paper copy)"},
+ WO:{name:"Work order",title:"Work order",form:"DU3 Work Order"},
+ Reprogram:{name:"Reprogram",title:"Reprogram a radio",sub:"Firmware, personality or LID change, during install or maintenance",form:"DU3 Radio Reprogramming Record"}};
+function splitLines(x){return String(x||"").split("\n").map(t=>t.trim()).filter(Boolean)}
+function rowToLine(r){const kind=String(r["Kind"]||"").trim();const t=kind==="passfail"?"pf":kind;
+ const itemsKey=Object.keys(r).find(k=>k.indexOf("Items")===0);const it=splitLines(r[itemsKey]);
+ const oi=String(r["Only if"]||"").match(/^\s*(\S+)\s*=\s*(.+?)\s*$/);const l={cond:oi?{id:oi[1],v:oi[2]}:null,id:String(r["Step"]),sec:String(r["Section"]||""),t,p:String(r["Title"]||""),do:splitLines(r["Do this (one per line)"]),shot:String(r["Photograph"]||""),
+  tip:String(r["Tip"]||"").replace(/\{([^}]+)\}/g,(x,k)=>JOB&&JOB[k]!==undefined&&String(JOB[k])!==""?String(JOB[k]):"not on record"),crop:String(r["Crop"]||""),ocr:String(r["Read from photo"]||""),ref:String(r["Ref"]||""),src:String(r["Source"]||""),who:String(r["Who (hold point)"]||""),need:String(r["Required"]||"Y")!=="N"};
+ const ex=String(r["Expected (job field)"]||"").trim();if(ex){const m=ex.match(/^\{(.+)\}$/);l.expect=m?String(JOB[m[1]]||""):ex}
+ if(String(r["Min"]).trim()!=="")l.min=Number(r["Min"]);if(String(r["Max"]).trim()!=="")l.max=Number(r["Max"]);l.unit=String(r["Unit"]||"");
+ if(t==="group")l.items=it;if(t==="choice")l.opts=it;
+ if(t==="sign"){l.roles=it.map(x=>x.replace(/^\*\s*/,""));l.req=it.map((x,k)=>/^\*/.test(x)?k:-1).filter(k=>k>=0)}
+ if(t==="gate"&&l.shot)l.photo=true;if(!l.do.length)delete l.do;return l}
+function jobHeader(m){const J=JOB,h=[["Record ID",J["Record ID"]],["QA record",J["QA record"]],["Unit",J["Unit"]+" · "+J["Vehicle"]],["Location",J["Location"]],
+ ["VCH serial",J["VCH serial"]],["Control head serial",J["Control head serial"]],["LID / P25 ID",J["LID"]+" / "+J["P25 ID"]],["Personality",J["Personality"]],["VCH firmware",J["Firmware"]]];
+ if(m==="Bench")h.push(["Label text",J["Label text"]]);if(m==="Install")h.splice(4,0,["Installation",J["Installation"]],["DWG-054 type",J["DWG-054 type"]]);return h.filter(r=>r[1]&&r[1]!=="undefined")}
+function call(fn,...args){return fetch(DU3.API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn:fn,args:args}),redirect:"follow",credentials:"omit",cache:"no-store"}).then(r=>r.text()).then(t=>{let j=null;try{j=JSON.parse(t)}catch(e){throw new Error("The DU3 Cloud server needs its update (Api.gs, then a new deployment).")}if(!j||!j.ok)throw new Error((j&&j.error)||"Server error");return j.result})}
+
+let S={mode:null,i:0,ans:{},extras:[],crop:false,screen:"home"};
+const $=id=>document.getElementById(id);
+function condOK(l){if(!l.cond)return true;const a=S.ans[l.cond.id];return!!(a&&!a.na&&String(a.v||"").toUpperCase()===l.cond.v.toUpperCase())}
+function lines(){return MODES[S.mode].lines.filter(condOK).concat(S.extras)}
+function A(id){return S.ans[id]||(S.ans[id]={photos:[],note:""})}
+function status(l){const a=S.ans[l.id];if(!a)return"";
+ if(a.na)return"n";
+ if(l.t==="photo")return a.photos.length?"p":"";
+ if(l.t==="check")return a.done?"p":"";
+ if(l.t==="pf"||l.t==="choice")return a.v==="F"?"f":(a.v?"p":"");
+ if(l.t==="gate")return a.ok&&(!l.photo||a.photos.length)?"p":"";
+ if(l.t==="reading"){if(a.v===undefined||a.v==="")return"";const x=parseFloat(a.v);return(x>=l.min&&x<=l.max)?"p":"f"}
+ if(l.t==="field"){if(!a.v||(l.ocr&&!a.photos.length&&!a.na))return"";return(!l.expect||a.v.trim().toUpperCase()===l.expect.toUpperCase())?"p":"f"}
+ if(l.t==="sign"){return a.locked?"p":""}
+ if(l.t==="group"){const g=a.g||{};const n=l.items.filter((_,k)=>g[k]).length;if(n<l.items.length)return"";return l.items.some((_,k)=>g[k]==="F")?"f":"p"}
+ return""}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+
+function busy(m){$("bar").style.display="none";$("app").innerHTML=`<div class="prompt" style="margin-top:30px">${esc(m)}</div>`}
+function pinScreen(msg){S.screen="pin";$("bar").style.display="none";
+ $("app").innerHTML=`<h2>Device PIN</h2><input type="tel" id="pin" inputmode="numeric" autocomplete="off" placeholder="PIN" value="${esc(PIN)}">
+ <button class="big red" style="text-align:center" onclick="login()">Continue</button>${msg?`<div class="chip f">${esc(msg)}</div>`:""}
+ <p class="note">Ask L3Harris:DU3 for your phone's PIN.</p>${foot()}`}
+async function login(){PIN=($("pin")||{}).value?$("pin").value.trim():PIN;busy("Checking…");
+ try{const r=await call("apiHello",PIN);ME=r.device;JOBS=r.jobs;BUILD=r.build;WOS=r.workOrders||null;UNITCARD=!!r.unitCard;try{localStorage.setItem("du3pin",PIN)}catch(e){}purgeClosed();if(START_WO){const w=START_WO;START_WO="";return openWO(w)}if(!resumeCur())home()}catch(e){pinScreen(e.message||String(e))}}
+function home(){if(!ME)return pinScreen();S.screen="home";$("bar").style.display="none";$("sub").textContent="· "+BUILD;
+ $("app").innerHTML=`<h2>Jobs</h2>${JOBS.length?JOBS.map((J,k)=>`<button class="big" onclick="pickJob(${k})">${esc(J["Job ID"])} · Unit ${esc(J["Unit"])}<small>${esc(J["Vehicle"])} · ${esc(J["Location"])}</small></button>`).join(""):'<p class="note">No open jobs in the library.</p>'}
+ ${UNITCARD?`<button class="big" onclick="cardHome()">Look up a unit<small>Unit card: vehicle, radio, QA, ICR (read only)</small></button>`:""}
+ <button class="big light" onclick="settings()">Settings</button>
+ <p class="note">Signed in as ${esc(ME.label)} (${esc(ME.org)}).</p>${foot()}`}
+function pickJob(k){JOB=JOBS[k];S.screen="pick";$("sub").textContent="· "+BUILD;const modes=splitLines(String(JOB["Mode"]).replace(/,/g,"\n"));
+ $("app").innerHTML=`<h2>${esc(JOB["Job ID"])}</h2><table class="hdr">${jobHeader("Install").map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join("")}</table>
+ ${modes.map(m=>`<button class="big ${m==="Install"?"red":m==="Paper"?"light":""}" onclick="loadMode('${m}')">${esc((MODE_INFO[m]||{title:m}).title)}${(MODE_INFO[m]||{}).sub?`<small>${esc(MODE_INFO[m].sub)}</small>`:""}</button>`).join("")}
+ <button class="big light" onclick="home()">◀ Jobs</button>${foot()}`}
+async function loadMode(m){busy("Loading the latest steps from the library…");
+ try{const r=await call("apiChecklist",PIN,m,JOB["Fleet"]);VERSION=r.version;const I=MODE_INFO[m]||{name:m,title:m,form:m};
+  const need=[...new Set(r.steps.map(x=>String(x["Same as"]||"").trim().split(/\s+/)[0]).filter(Boolean))],base={};
+  for(const bm of need){const b=await call("apiChecklist",PIN,bm,JOB["Fleet"]);base[bm]={};b.steps.forEach(x=>base[bm][String(x["Step"])]=x);VERSION+=" + "+b.version}
+  r.steps=r.steps.map(x=>{const sa=String(x["Same as"]||"").trim().split(/\s+/);if(!sa[0])return x;const b=(base[sa[0]]||{})[sa[1]];if(!b)return x;
+   const o=Object.assign({},b);Object.keys(x).forEach(k=>{if(String(x[k]).trim()!==""&&k!=="Same as")o[k]=x[k]});o["Source"]=(String(x["Source"]||"").trim()||String(b["Source"]||""))+" (same as "+sa[0]+" step "+sa[1]+")";return o});
+  MODES[m]={name:I.name,title:I.title,form:I.form+" · "+JOB["Record ID"],header:jobHeader(m),lines:r.steps.map(rowToLine)};job(m)}
+ catch(e){tell("Couldn't load the steps: "+(e.message||e)+" — no connection? Use the paper Appendix C.");pickJob(JOBS.indexOf(JOB))}}
+function homeOld(){S.screen="home";$("bar").style.display="none";$("sub").textContent="· Prototype";
+ $("app").innerHTML=`<h2>Start</h2>
+ <button class="big" onclick="job('bench')">Bench: program a radio<small>Build Order and Production Record P1–M2</small></button>
+ <button class="big red" onclick="job('install')">Field: install a vehicle<small>SDD-119 Appendix C QA checklist, in work order</small></button>
+ <button class="big light" onclick="job('paper')">Upload the paper checklist<small>Photograph the 5 Appendix C pages and upload</small></button>
+ <button class="big light" onclick="settings()">Settings</button>
+ <p class="note">Prototype for layout and flow only. The camera here is the phone's own camera; in the Android app you hold the shutter to lock focus and release to shoot. Photos stay on this phone and vanish when the page closes.</p>
+ ${foot()}`}
+let UNITCARD=false,CARDQ="";
+function cardHome(){if(!ME)return pinScreen();S.screen="card";$("bar").style.display="none";$("sub").textContent="· Unit card";
+ $("app").innerHTML=`<h2>Look up a unit</h2><input type="text" id="cardq" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="2920, NR2920 or serial" value="${esc(CARDQ)}" onkeydown="if(event.key==='Enter')unitCard()">
+ <button class="big red" style="text-align:center" onclick="unitCard()">Look up</button>
+ <div class="big light shoot" style="min-height:64px;font-size:19px">▦ Scan a barcode<input type="file" accept="image/&#42;" capture="environment" onchange="cardScan(this)" aria-label="Scan a barcode"></div>
+ <p class="note">Unit number, Unit ID or VCH serial (the last 4 to 6 digits are enough). Read only: nothing is changed and nothing is kept on this phone.</p>
+ <button class="big light" onclick="home()">◀ Jobs</button>${foot()}`}
+async function cardScan(inp){const f=inp.files&&inp.files[0];inp.value="";if(!f)return;
+ if(!("BarcodeDetector" in window)){tell("This phone can't read barcodes in the app. Type the number instead.");return}
+ try{const bmp=await createImageBitmap(f);const codes=await new BarcodeDetector().detect(bmp);
+  const c=codes.map(x=>String(x.rawValue||"").trim().toUpperCase().replace(/\s+/g,"")).find(s=>/^[A-Z0-9-]{4,20}$/.test(s));
+  if(!c){tell("No barcode found in that photo. Try again closer, or type the number.");return}
+  unitCard(c)}catch(e){tell("Couldn't read the barcode: "+(e.message||e))}}
+async function unitCard(q){q=String(q||($("cardq")||{}).value||"").trim();if(!q){tell("Type a unit number or serial first.");return}CARDQ=q;busy("Looking up "+q+"…");
+ let r;try{r=await call("apiUnitCard",PIN,q)}catch(e){const m=String(e.message||e);cardHome();tell(/apiUnitCard|not a function|Script function not found/i.test(m)?"The unit card needs the server update. Ask L3Harris:DU3.":m);return}
+ S.screen="card";$("bar").style.display="none";
+ if(r.pick){$("app").innerHTML=`<h2>Which one?</h2>${r.pick.map(p=>`<button class="big" onclick="unitCard('${esc(p.key)}')">${esc(p.key)}<small>${esc(p.label)}</small></button>`).join("")}<button class="big light" onclick="cardHome()">◀ Search again</button>${foot()}`;window.scrollTo(0,0);return}
+ const link=u=>/^https:\/\/drive\.google\.com\/./.test(String(u));
+ const secs=r.sections.map(s=>`<h2>${esc(s.title)}</h2>${s.rows.length?`<table class="hdr">${s.rows.map(x=>`<tr><td>${esc(x[0])}</td><td>${x[2]==="link"&&link(x[1])?`<a href="${esc(x[1])}" target="_blank" rel="noopener">Open</a>`:esc(x[1])}</td></tr>`).join("")}</table>`:""}
+ ${s.list.length?`<div class="note">${s.list.map(x=>typeof x==="string"?`<div style="padding:6px 0;border-bottom:1px solid var(--line)">${esc(x)}</div>`:`<div style="padding:6px 0;border-bottom:1px solid var(--line)">${link(x.url)?`<a href="${esc(x.url)}" target="_blank" rel="noopener">${x.photo?"📷 ":""}${esc(x.name)}</a>`:esc(x.name)}</div>`).join("")}</div>`:""}
+ <p class="note" style="font-size:13px;margin:4px 0 0">From: ${esc(s.source)}</p>`).join("");
+ $("app").innerHTML=`<h2>Unit card · ${esc(r.title)}</h2>${(r.warnings||[]).map(w=>`<div class="chip n" style="display:block;border-radius:10px">⚠ Sources disagree: ${esc(w)}</div>`).join("")}${secs}
+ <p class="note">Read only · as of ${esc(r.asOf)} · ${esc(r.role)} view · nothing is kept on this phone.</p>
+ <button class="big red" style="text-align:center" onclick="cardHome()">Look up another</button><button class="big light" onclick="home()">◀ Jobs</button>${foot()}`;window.scrollTo(0,0)}
+function settings(){S.screen="settings";$("bar").style.display="none";
+ $("app").innerHTML=`<h2>Settings</h2>
+ <label class="cb"><input type="checkbox" ${S.crop?"checked":""} onchange="S.crop=this.checked"> Auto-crop (test)</label>
+ <p class="note">When on, each photo shows a cropped copy that keeps only the paper or label. The original is always kept and is the record. You can also flip this on any photo step while working. It is a simple first version, to be tuned during testing.</p>
+ <button class="big light" onclick="home()">◀ Back</button>${foot()}`}
+function job(m){S.mode=m;S.i=0;S.ans={};S.extras=[];S.savedAt="";if(restore())return;S.screen="job";$("bar").style.display="none";const M=MODES[m];
+ $("sub").textContent="· "+M.name;
+ $("app").innerHTML=`<h2>${M.title}</h2><table class="hdr">${M.header.map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join("")}</table>
+ <p class="note">${m==="WO"?"From the DU3 Installation Follow-up List: only the tasks on this issue of the work order. Nothing here is typed by the technician. ":"From the Jobs list in the library (Rev 0 work notification and bench build data). Nothing here is typed by the technician. "}Steps: ${esc(VERSION)}.</p>${m==="WO"&&MODES.WO.phone?`<a class="big light" style="display:block;text-align:center;text-decoration:none" href="tel:${esc(MODES.WO.phone.replace(/[^0-9+]/g,""))}">📞 Call the vehicle contact</a>`:""}
+ <button class="big red" onclick="step(0)">Start · ${M.lines.length} steps</button>
+ <button class="big light" onclick="${m==="WO"?"home()":"pickJob(JOBS.indexOf(JOB))"}">◀ Back</button>${foot()}`}
+function step(i){const L=lines();S.i=Math.max(0,Math.min(i,L.length-1));S.screen="step";$("bar").style.display="block";render()}
+function render(){const L=lines(),l=L[S.i],a=A(l.id),M=MODES[S.mode];
+ let body="";
+ if(l.t==="photo"||(l.t==="gate"&&l.photo)){
+  if(a.photos.length)body+=`<div class="grid">${a.photos.map((p,k)=>`<div class="cell"><img src="${(p.crop&&S.crop?p.crop:p.src)||NOIMG}" onclick="view(${k})">${p.crop&&S.crop?'<span class="badge">CROP</span>':""}<span class="up ${p.up}">${p.up==="ok"?"☁ ✓":p.up==="fail"?"⚠ waiting":"☁ …"}</span><button class="del" onclick="delPhoto(${k})">✕</button><span class="num">${k+1}</span></div>`).join("")}</div>`;
+  body+=`<div class="big red shoot">📷 ${a.photos.length?"Take another photo":"Camera"}<input type="file" accept="image/&#42;" capture="environment" onclick="tapped()" onchange="snap(this)" aria-label="Camera"></div>
+  <div class="big light shoot" style="min-height:64px;font-size:19px">🖼 ${isWide()?"Choose files, drop or paste photos":"From gallery"}<input type="file" accept="image/&#42;" multiple onchange="snapMany(this.files)" aria-label="From gallery"></div>
+  <div class="note" id="tapmsg" style="margin-top:-4px"></div>`;
+  body+=`<label class="cb"><input type="checkbox" ${S.crop?"checked":""} onchange="S.crop=this.checked;render()"> Auto-crop (test)${l.crop?" · looks for: "+l.crop:""}</label>`;
+  if(a.deleted)body+=`<span class="chip g">${a.deleted} deleted</span>`;
+  if(l.t==="photo")body+=`<div class="seg"><button class="${a.na?"on n":""}" onclick="setNA()">N/A</button></div>`}
+ if(l.t==="check")body+=seg([["d","Done","done"],["n","N/A","na"]],a);
+ if(l.t==="pf")body+=seg([["p","Pass","P"],["f","Fail","F"],["n","N/A","na"]],a);
+ if(l.t==="choice")body+=`<div>${l.opts.map((o,k)=>`<button class="big ${a.v===o?"":"light"}" onclick="A('${l.id}').v='${o.replace(/'/g,"")}';render()">${esc(o)}</button>`).join("")}</div>`;
+ if(l.t==="reading"){const s=status(l);body+=`<input type="number" inputmode="decimal" step="0.1" placeholder="Reading in ${l.unit}" value="${a.v??""}" oninput="A('${l.id}').v=this.value;chips()">
+  <div id="chips"><span class="chip g">Limit ${l.min===0?"≤ "+l.max:l.min+"–"+l.max} ${l.unit}</span>${s?`<span class="chip ${s}">${s==="p"?"PASS":"FAIL"}</span>`:""}</div>`}
+ if(l.t==="field"&&l.ocr){
+  if(a.photos.length)body+=`<div class="grid">${a.photos.map((p,k)=>`<div class="cell"><img src="${p.src}" onclick="view(${k})"><button class="del" onclick="delPhoto(${k})">✕</button><span class="num">${k+1}</span></div>`).join("")}</div>`;
+  body+=`<div class="big red shoot">📷 ${a.photos.length?"Retake screen photo":"Photo of the screen"}<input type="file" accept="image/&#42;" capture="environment" onchange="ocrSnap(this)" aria-label="Photo of the screen"></div>`;
+  if(a.ocrState)body+=`<div class="chip ${a.ocrState==="read"?"p":a.ocrState==="busy"?"g":"n"}" id="ocrchip">${esc(a.ocrMsg||"")}</div>`;
+  body+=`<div class="note" style="margin-top:8px">Value (filled from the photo; correct it if needed):</div>`}
+ if(l.t==="field"){const s=status(l);body+=`<input type="text" autocapitalize="characters" placeholder="Type what you read" value="${esc(a.v||"")}" oninput="A('${l.id}').v=this.value;chips()">
+  <div id="chips">${l.expect?`<span class="chip g">Build data: ${l.expect}</span>`:""}${s?`<span class="chip ${s}">${s==="p"?"MATCH":"MISMATCH — stop and check"}</span>`:""}</div>`}
+ if(l.t==="group"){const g=a.g||(a.g={});body+=`<button class="big light" style="min-height:52px;text-align:center" onclick="allPass()">All Pass</button><div class="grp">${l.items.map((it,k)=>`<div class="row"><div class="lbl">${esc(it)}</div><div class="seg">${["P","F","N/A"].map(v=>`<button class="${g[k]===v?"on "+(v==="P"?"p":v==="F"?"f":"n"):""}" onclick="gset(${k},'${v}')">${v==="P"?"Pass":v==="F"?"Fail":"N/A"}</button>`).join("")}</div></div>`).join("")}</div>`}
+ if(l.t==="sign"){const sg=a.sig||(a.sig={});
+  body+=l.roles.map((r,k)=>{const x=sg[k]||{};const req=l.req.includes(k);
+   return `<div class="sigbox"><div class="lbl"><b>${esc(r)}</b>${req?"":' <span class="note">(if present)</span>'}</div>
+   ${x.img?`<img src="${x.img}" class="sigimg"><div class="chip p">Signed ${esc(x.name)} · ${esc(x.at)} ET</div>`:a.locked?`<div class="chip g">Not signed</div>`:
+   `<input type="text" placeholder="Name, e.g. MBTA:J.Scholl" value="${esc(x.name||"")}" oninput="sigName(${k},this.value)">
+    <canvas class="pad" id="pad${k}" width="600" height="220"></canvas>
+    <div class="seg"><button onclick="padClear(${k})">Clear</button><button class="on d" onclick="padSign(${k})">✓ Sign</button></div>`}</div>`}).join("");
+  const ready=l.req.every(k=>sg[k]&&sg[k].img);
+  body+=a.locked?`<div class="gate"><b>LOCKED ${esc(a.locked)} ET</b><br>Fingerprint ${esc(a.hash||"")}<br>The record can no longer be changed.</div>`:
+   `<button class="big ${ready?"red":"light"}" style="text-align:center" onclick="lockRec()">🔒 Lock the record${ready?"":" (needs "+l.req.map(k=>l.roles[k].split(" ")[0]).join(", ")+")"}</button>`}
+ if(l.t==="gate")body+=`<div class="gate"><b>${l.sec.toUpperCase()}</b><br>Work stops here until the <b>${l.who}</b> has checked.<br><br><input type="text" placeholder="Initials" value="${esc(a.ini||"")}" oninput="A('${l.id}').ini=this.value"></div>
+  <div class="seg"><button class="${a.ok?"on d":""}" onclick="A('${l.id}').ok=!A('${l.id}').ok;render()">✓ Checked by ${l.who}</button></div>`;
+ const need=(a.na||status(l)==="f"||l.sec==="Extra");
+ const lockedAt=lockedTime();
+ $("app").innerHTML=`${lockedAt?`<div class="lockbar">🔒 LOCKED ${esc(lockedAt)} ET · read only</div>`:""}<div class="${lockedAt&&l.t!=="sign"?"ro":""}"><div class="meta"><span>Step ${S.i+1} of ${L.length} · <span class="ref">${esc(l.id)}</span></span><span class="ref">${esc(l.sec||l.ref)}</span></div>
+ <div class="prompt">${esc(l.p)}${l.t==="gate"?'<span class="tag">HOLD</span>':""}</div>
+ ${l.do?`<div class="dobox"><div class="dohead">DO THIS</div><ol>${l.do.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>${l.src?`<div class="src">Source: ${esc(l.src)}</div>`:""}</div>`:""}
+ ${l.shot?`<div class="shotp">📷 THEN PHOTOGRAPH: ${esc(l.shot)}</div>`:""}${l.tip?`<div class="tip">${esc(l.tip)}</div>`:""}
+ ${body}
+ <div class="notebar"><textarea id="note" placeholder="${need?"Note required: say why":"Note (optional)"}" oninput="A('${l.id}').note=this.value">${esc(a.note)}</textarea></div>
+ ${need&&!a.note?'<span class="chip f">A note is required here</span>':""}</div>`;
+ if(l.t==="sign"&&!a.locked)l.roles.forEach((_,k)=>{const c=$("pad"+k);if(c)initPad(c)});
+ $("nextBtn").textContent=S.i===L.length-1?"Finish ✓":"Next ▶";
+ $("strip").innerHTML=L.map((x,k)=>`<i class="${status(x)} ${k===S.i?"cur":""}"></i>`).join("");
+ window.scrollTo(0,0)}
+function seg(opts,a){return`<div class="seg">${opts.map(o=>`<button class="${(o[2]==="na"&&a.na)||(o[2]==="done"&&a.done&&!a.na)||(a.v===o[2]&&!a.na)?"on "+o[0]:""}" onclick="pick('${o[2]}')">${o[1]}</button>`).join("")}</div>`}
+function pick(v){if(lockedTime()){tell("Record locked. Nothing can be changed.");return}const a=A(lines()[S.i].id);a.na=(v==="na");a.done=(v==="done");if(v!=="na"&&v!=="done")a.v=v;else if(v==="na")a.v=undefined;render()}
+function setNA(){if(lockedTime()){tell("Record locked. Nothing can be changed.");return}const a=A(lines()[S.i].id);a.na=!a.na;render()}
+function gset(k,v){if(lockedTime()){tell("Record locked. Nothing can be changed.");return}const a=A(lines()[S.i].id);(a.g||(a.g={}))[k]=v;render()}
+function allPass(){if(lockedTime()){tell("Record locked. Nothing can be changed.");return}const l=lines()[S.i],a=A(l.id);a.g={};l.items.forEach((_,k)=>a.g[k]="P");render()}
+function chips(){const l=lines()[S.i],s=status(l),c=$("chips");if(!c)return;
+ if(l.t==="reading")c.innerHTML=`<span class="chip g">Limit ${l.min===0?"≤ "+l.max:l.min+"–"+l.max} ${l.unit}</span>${s?`<span class="chip ${s}">${s==="p"?"PASS":"FAIL"}</span>`:""}`;
+ else c.innerHTML=`${l.expect?`<span class="chip g">Build data: ${l.expect}</span>`:""}${s?`<span class="chip ${s}">${s==="p"?"MATCH":"MISMATCH — stop and check"}</span>`:""}`;
+ $("strip").innerHTML=lines().map((x,k)=>`<i class="${status(x)} ${k===S.i?"cur":""}"></i>`).join("");const n=$("note");if(n)n.placeholder=(s==="f")?"Note required: say why":"Note (optional)"}
+function snap(inp){if(lockedTime()){tell("Record locked. Nothing can be changed.");return}const f=inp.files&&inp.files[0];if(!f)return;const l=lines()[S.i],a=A(l.id);const r=new FileReader();
+ r.onload=e=>{const src=e.target.result;const p={src,crop:null,mime:f.type||"image/jpeg",fileName:f.name,takenMs:f.lastModified||Date.now(),taken:new Date().toLocaleString("en-US",{timeZone:"America/New_York"}),up:"wait",line:l,n:a.photos.length+1,uid:"P"+Date.now()+Math.random().toString(36).slice(2,6)};a.photos.push(p);idbPut(p.uid,{src,crop:null});a.na=false;render();
+  autoCrop(src,l.crop).then(c=>{p.crop=c;idbPut(p.uid,{src,crop:c});if(S.screen==="step")render();pump()})};r.readAsDataURL(f)}
+let pumping=false;
+async function pump(){if(pumping)return;pumping=true;try{for(const l of lines()){const a=S.ans[l.id];if(!a)continue;for(const p of a.photos){if(p.up==="ok"||p.up==="busy"||!p.src)continue;
+  p.up="busy";refreshBadges();try{const r=await call("apiUploadPhoto",PIN,{jobId:JOB["Job ID"],wo:S.mode==="WO"?JOB["Job ID"]:"",mode:S.mode,step:p.line.id,title:p.line.p,n:p.n,b64:p.src.split(",")[1],mime:p.mime,fileName:p.fileName,takenMs:p.takenMs,
+   cropB64:(S.crop&&p.crop)?p.crop.split(",")[1]:"",note:a.note||"",version:VERSION});p.up="ok";p.fileId=r.fileId;p.photoId=r.photoId;p.url=r.url}catch(e){p.up="fail"}refreshBadges()}}}finally{pumping=false}}
+function refreshBadges(){if(S.screen==="step")render();const q=$("upq");if(q)q.textContent=queueText()}
+function queueText(){let w=0,f=0,o=0;Object.values(S.ans).forEach(a=>(a.photos||[]).forEach(p=>{if(p.up==="ok")o++;else if(p.up==="fail")f++;else w++}));return o+" uploaded"+(w?" · "+w+" uploading":"")+(f?" · "+f+" waiting for signal":"")}
+function delPhoto(k){if(lockedTime()){tell("Record locked. Nothing can be changed.");return}const a=A(lines()[S.i].id);const p=a.photos[k];ask("Delete photo "+(k+1)+"?"+(p.up==="ok"?" It is already uploaded: it goes to the Drive trash and the register records the deletion.":" It is removed from this phone and never uploaded."),"Delete",()=>{a.photos.splice(k,1);idbDel(p.uid);a.deleted=(a.deleted||0)+1;
+   if(p.up==="ok")call("apiDeletePhoto",PIN,{jobId:JOB["Job ID"],wo:S.mode==="WO"?JOB["Job ID"]:"",mode:S.mode,step:p.line.id,title:p.line.p,fileId:p.fileId,photoId:p.photoId,version:VERSION}).catch(()=>{});render()})}
+function view(k){const a=A(lines()[S.i].id),p=a.photos[k];$("dlgmsg").textContent="Photo "+(k+1)+" · "+p.taken+" ET";
+ $("dlgimg").innerHTML=`<p class="note">Original (the record)</p><img src="${p.src||NOIMG}">${p.crop?`<p class="note">Auto-crop copy (test)</p><img src="${p.crop}">`:""}`;
+ $("dlgbtns").innerHTML=`<button class="on d" onclick="closeDlg()">Close</button>`;$("dlg").style.display="flex"}
+
+function autoCrop(src,target){const T=String(target||"").toLowerCase();const mode=T.indexOf("screen")>=0?"screen":(T.indexOf("label")>=0?"label":"doc");
+ return new Promise(res=>{const im=new Image();im.onload=()=>{try{
+ const W=320,sc=W/im.width,H=Math.max(1,Math.round(im.height*sc));const c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");x.drawImage(im,0,0,W,H);
+ const d=x.getImageData(0,0,W,H).data,N=W*H,L=new Uint8Array(N),Sat=new Uint8Array(N),hist=new Array(256).fill(0);
+ for(let i=0;i<N;i++){const r=d[i*4],g=d[i*4+1],b=d[i*4+2];const v=Math.round(0.299*r+0.587*g+0.114*b);L[i]=v;Sat[i]=Math.max(r,g,b)-Math.min(r,g,b);hist[v]++}
+ let sum=0;for(let t=0;t<256;t++)sum+=t*hist[t];let sB=0,wB=0,best=0,thr=128;for(let t=0;t<256;t++){wB+=hist[t];if(!wB)continue;const wF=N-wB;if(!wF)break;sB+=t*hist[t];const mB=sB/wB,mF=(sum-sB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>best){best=v;thr=t}}
+ let m=new Uint8Array(N),raw=null;
+ if(mode==="screen"){const I=new Float64Array((W+1)*(H+1));for(let y=0;y<H;y++){let rs=0;for(let x2=0;x2<W;x2++){rs+=L[y*W+x2];I[(y+1)*(W+1)+x2+1]=I[y*(W+1)+x2+1]+rs}}
+  const R=8;raw=new Uint8Array(N);for(let y=0;y<H;y++)for(let x2=0;x2<W;x2++){const a0=Math.max(0,x2-R),b0=Math.max(0,y-R),a1=Math.min(W,x2+R+1),b1=Math.min(H,y+R+1);
+   const mean=(I[b1*(W+1)+a1]-I[b0*(W+1)+a1]-I[b1*(W+1)+a0]+I[b0*(W+1)+a0])/((a1-a0)*(b1-b0));if(Math.abs(L[y*W+x2]-mean)>45)raw[y*W+x2]=1}
+  m=raw}
+ else for(let i=0;i<N;i++)m[i]=(L[i]>thr&&Sat[i]<70)?1:0;
+ const dil=(a,r)=>{const o=new Uint8Array(N);for(let y=0;y<H;y++)for(let x2=0;x2<W;x2++){if(!a[y*W+x2])continue;for(let dy=-r;dy<=r;dy++){const yy=y+dy;if(yy<0||yy>=H)continue;for(let dx=-r;dx<=r;dx++){const xx=x2+dx;if(xx>=0&&xx<W)o[yy*W+xx]=1}}}return o};
+ m=dil(m,mode==="screen"?Math.round(W*0.03):2);
+ const lab=new Int32Array(N).fill(-1),boxes=[];const q=new Int32Array(N);
+ for(let s=0;s<N;s++){if(!m[s]||lab[s]>=0)continue;const id=boxes.length;let h0=0,t0=0;q[t0++]=s;lab[s]=id;let bx={x0:W,y0:H,x1:0,y1:0,n:0};
+  while(h0<t0){const p=q[h0++],py=(p/W)|0,px=p-py*W;bx.n++;if(raw&&raw[p])bx.r=(bx.r||0)+1;if(px<bx.x0)bx.x0=px;if(px>bx.x1)bx.x1=px;if(py<bx.y0)bx.y0=py;if(py>bx.y1)bx.y1=py;
+   const nb=[p-1,p+1,p-W,p+W];for(let k=0;k<4;k++){const nq=nb[k];if(nq<0||nq>=N)continue;if(k===0&&px===0)continue;if(k===1&&px===W-1)continue;if(m[nq]&&lab[nq]<0){lab[nq]=id;q[t0++]=nq}}}
+  boxes.push(bx)}
+ if(!boxes.length)return res(null);
+ if(mode==="screen")boxes.forEach(b=>{const ba=(b.x1-b.x0+1)*(b.y1-b.y0+1);b.sc=(b.r||0)*((b.r||0)/ba)});else boxes.forEach(b=>b.sc=b.n);
+ boxes.sort((a,b)=>b.sc-a.sc);let B=Object.assign({},boxes[0]);
+ if(mode==="screen"){const gap=W*0.08;let grew=true;while(grew){grew=false;for(const o of boxes){if(o===boxes[0]||o.used||o.n<N*0.002||o.sc<boxes[0].sc*0.05)continue;
+   if(o.x0<=B.x1+gap&&o.x1>=B.x0-gap&&o.y0<=B.y1+gap&&o.y1>=B.y0-gap){B.x0=Math.min(B.x0,o.x0);B.y0=Math.min(B.y0,o.y0);B.x1=Math.max(B.x1,o.x1);B.y1=Math.max(B.y1,o.y1);o.used=1;grew=true}}}}
+ const area=((B.x1-B.x0)*(B.y1-B.y0))/N;const lim={screen:[0.02,0.9],label:[0.02,0.95],doc:[0.1,0.95]}[mode];if(area<lim[0]||area>lim[1])return res(null);
+ const pad={screen:0.05,label:0.03,doc:0.015}[mode];
+ const X0=Math.max(0,B.x0/W-pad)*im.width,Y0=Math.max(0,B.y0/H-pad)*im.height,X1=Math.min(1,(B.x1+1)/W+pad)*im.width,Y1=Math.min(1,(B.y1+1)/H+pad)*im.height;
+ const o=document.createElement("canvas");const ow=Math.round(X1-X0),oh=Math.round(Y1-Y0),k=Math.min(1,2000/Math.max(ow,oh));o.width=Math.round(ow*k);o.height=Math.round(oh*k);
+ o.getContext("2d").drawImage(im,X0,Y0,ow,oh,0,0,o.width,o.height);res(o.toDataURL("image/jpeg",0.9))}catch(e){res(null)}};im.onerror=()=>res(null);im.src=src})}
+function extra(){if(lockedTime()){tell("Record locked. Nothing can be changed.");return}const n=S.extras.length+1;S.extras.push({id:"X"+n,sec:"Extra",t:"photo",p:"Extra photo X"+n,tip:"Describe what this shows (voice or keyboard).",multi:true,ref:"Ad hoc"});A("X"+n);step(lines().length-1)}
+var _rec=null;
+function speakHint(){const t=$("note");if(t){t.focus();const n=t.value.length;try{t.setSelectionRange(n,n)}catch(e){}}
+ const s=$("micsub");if(s)s.textContent="Use the microphone key on the keyboard that just opened.";const b=$("mic");if(b)b.classList.remove("live")}
+function dictate(){if(lockedTime()){tell("Record locked. Nothing can be changed.");return}
+ if(_rec){try{_rec.stop()}catch(e){}return}
+ const R=window.SpeechRecognition||window.webkitSpeechRecognition;let blocked=false;try{blocked=localStorage.getItem("du3speech")==="off"}catch(e){}
+ if(!R||blocked)return speakHint();
+ const id=lines()[S.i].id,r=new R();r.lang="en-US";r.continuous=true;r.interimResults=false;_rec=r;
+ const b=$("mic"),s=$("micsub");if(b)b.classList.add("live");if(s)s.textContent="Listening. Tap again to stop.";
+ r.onresult=e=>{let t="";for(let k=e.resultIndex;k<e.results.length;k++)if(e.results[k].isFinal)t+=e.results[k][0].transcript;t=t.trim();if(!t)return;
+  const a=A(id);a.note=(a.note?a.note+" ":"")+t;const x=$("note");if(x&&lines()[S.i].id===id)x.value=a.note;persist()};
+ r.onend=()=>{_rec=null;const b2=$("mic"),s2=$("micsub");if(b2)b2.classList.remove("live");if(s2&&s2.textContent.indexOf("Listening")===0)s2.textContent="Tap, talk, then tap again to stop"};
+ r.onerror=e=>{_rec=null;const er=e&&e.error;if(er==="not-allowed"||er==="service-not-allowed"||er==="audio-capture"){try{localStorage.setItem("du3speech","off")}catch(x){}speakHint()}
+  else if(er!=="no-speech"&&er!=="aborted"){const s2=$("micsub");if(s2)s2.textContent="Didn't catch that ("+er+"). Tap to try again."}};
+ try{r.start()}catch(e){_rec=null;speakHint()}}
+function lockedTime(){const q=Object.values(S.ans).find(a=>a.locked);return q?q.locked:null}
+function nowET(){return new Date().toLocaleString("en-US",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"})}
+function initPad(c){const x=c.getContext("2d");x.lineWidth=5;x.lineCap="round";x.strokeStyle="#1F2A44";let dn=false;c._ink=false;
+ const pos=e=>{const r=c.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return[(t.clientX-r.left)*c.width/r.width,(t.clientY-r.top)*c.height/r.height]};
+ const st=e=>{e.preventDefault();dn=true;const[a,b]=pos(e);x.beginPath();x.moveTo(a,b)};
+ const mv=e=>{if(!dn)return;e.preventDefault();const[a,b]=pos(e);x.lineTo(a,b);x.stroke();c._ink=true};
+ const en=()=>{dn=false};
+ c.addEventListener("touchstart",st,{passive:false});c.addEventListener("touchmove",mv,{passive:false});c.addEventListener("touchend",en);
+ c.addEventListener("mousedown",st);c.addEventListener("mousemove",mv);window.addEventListener("mouseup",en)}
+function sigName(k,v){const a=A(lines()[S.i].id);(a.sig[k]=a.sig[k]||{}).name=v}
+function padClear(k){const c=$("pad"+k);c.getContext("2d").clearRect(0,0,c.width,c.height);c._ink=false}
+function padSign(k){const a=A(lines()[S.i].id),x=a.sig[k]=a.sig[k]||{},c=$("pad"+k);
+ if(!x.name||!x.name.trim())return tell("Enter the signer's name first.");if(!c._ink)return tell("Sign in the box first.");
+ x.img=c.toDataURL("image/png");x.at=nowET();render()}
+async function lockRec(){const l=lines()[S.i],a=A(l.id);if(!l.req.every(k=>a.sig[k]&&a.sig[k].img))return tell("Required signatures are missing.");
+ ask("Lock this record? After locking, nothing in this job can be changed.","Lock",()=>doLock(a))}
+async function doLock(a){a.locked=nowET();try{const data=new TextEncoder().encode(JSON.stringify(S.ans));const h=await crypto.subtle.digest("SHA-256",data);
+  a.hash=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,"0")).join("").slice(0,16)}catch(e){a.hash="(computed in the app)"}render()}
+function closeDlg(){$("dlg").style.display="none"}
+function tell(msg){$("dlgmsg").textContent=msg;$("dlgimg").innerHTML="";$("dlgbtns").innerHTML=`<button class="on d" onclick="closeDlg()">OK</button>`;$("dlg").style.display="flex"}
+let _askCb=null;
+function ask(msg,ok,cb){_askCb=cb;$("dlgmsg").textContent=msg;$("dlgimg").innerHTML="";$("dlgbtns").innerHTML=`<button onclick="closeDlg()">Cancel</button><button class="on f" onclick="closeDlg();_askCb&&_askCb()">${ok}</button>`;$("dlg").style.display="flex"}
+function tapped(){const m=$("tapmsg");if(m){m.style.color="#C0262D";m.style.fontWeight="700";m.textContent="Opening the camera… If nothing opens, use From gallery, or open the link in Chrome."}}
+
+let _tw=null;
+function loadScript(u){return new Promise((ok,no)=>{const e=document.createElement("script");e.src=u;e.onload=ok;e.onerror=no;document.head.appendChild(e)})}
+async function ocrWorker(){if(_tw)return _tw;if(!window.Tesseract)await loadScript("https:\/\/cdn.jsdelivr.net\/npm\/tesseract.js@5.1.1\/dist\/tesseract.min.js");
+ _tw=await Tesseract.createWorker("eng");return _tw}
+function withTimeout(p,ms){return Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(new Error("timeout")),ms))])}
+function ocrPick(kind,text,expect){const t=text.toUpperCase().replace(/[OQ]/g,m=>m).replace(/\s+/g," ");
+ if(kind==="serial"){const z=t.replace(/\s/g,"");const all=(z.match(/A[0-9OILS]{11}/g)||[]).map(x=>"A"+x.slice(1).replace(/O/g,"0").replace(/[IL]/g,"1").replace(/S/g,"5"));if(!all.length)return null;const e=String(expect||"").toUpperCase();return all.includes(e)?e:all[0]}
+ if(kind==="prsx"){const e=String(expect||"").toUpperCase();if(e&&t.replace(/\s/g,"").indexOf(e.replace(/\s/g,""))>=0)return expect;
+  const m=t.match(/[A-Z0-9]{3,}(?:-[A-Z0-9]+)+(?:\s?\.\s?PRSX)?/g);if(!m)return null;const best=m.find(x=>/PRSX/.test(x))||m[0];return best.replace(/\s/g,"").replace(/\.PRSX$/,".prsx")}
+ if(kind==="fw"){const m=t.replace(/O/g,"0").match(/R\s?\d{2}\s?[A-Z]\s?\d{2}\s?[.,]\s?\d{4}/);return m?m[0].replace(/\s/g,"").replace(",","."):null}
+ const nums=(t.replace(/[OD]/g,"0").replace(/[IL|]/g,"1").match(/\b\d{4}\b/g)||[]);if(!nums.length)return null;
+ return nums.includes(expect)?expect:nums[0]}
+function ocrSnap(inp){if(lockedTime()){tell("Record locked. Nothing can be changed.");return}
+ const f=inp.files&&inp.files[0];if(!f)return;const l=lines()[S.i],a=A(l.id);const r=new FileReader();
+ r.onload=async e=>{const src=e.target.result;const uid="P"+Date.now()+Math.random().toString(36).slice(2,6);(a.photos||[]).forEach(q=>idbDel(q.uid));a.photos=[{src,crop:null,mime:f.type||"image/jpeg",fileName:f.name,takenMs:f.lastModified||Date.now(),taken:nowET(),up:"wait",line:l,n:1,uid}];idbPut(uid,{src,crop:null});a.na=false;a.ocrState="busy";pump();a.ocrMsg="Reading the screen…";render();
+  try{const w=await withTimeout(ocrWorker(),45000);const cr=await autoCrop(src,l.crop||"Screen");if(cr&&a.photos[0]){a.photos[0].crop=cr;idbPut(uid,{src,crop:cr})}let v=null;if(cr){const r1=await withTimeout(w.recognize(cr),45000);v=ocrPick(l.ocr,r1.data.text||"",l.expect)}if(!v){const res=await withTimeout(w.recognize(src),45000);v=ocrPick(l.ocr,res.data.text||"",l.expect)}
+   if(v){a.v=v;a.ocrState="read";a.ocrMsg="Read from photo: "+v}else{a.ocrState="none";a.ocrMsg="Couldn't find it in the photo. Type what the screen shows."}}
+  catch(err){a.ocrState="none";a.ocrMsg="Automatic reading isn't available here. Type what the screen shows (the photo is kept)."}
+  if(S.screen==="step"&&lines()[S.i].id===l.id)render()};r.readAsDataURL(f)}
+function go(d){const L=lines();if(d>0&&S.i===L.length-1)return finish();step(S.i+d)}
+function finish(){S.screen="finish";$("bar").style.display="none";const L=lines(),M=MODES[S.mode];
+ const miss=L.filter(l=>!status(l)),fails=L.filter(l=>status(l)==="f"),nonote=L.filter(l=>{const a=S.ans[l.id]||{};return(a.na||status(l)==="f"||l.sec==="Extra")&&!a.note});
+ const ok=!miss.length&&!nonote.length;
+ $("app").innerHTML=`<button class="big light" onclick="step(S.i)">◀ Back to step ${S.i+1} · ${esc(L[S.i].id)}</button><h2>${ok?"Ready to close":"Not finished"}</h2>
+ ${miss.length?`<p><b>${miss.length} missing</b> — tap to go there:</p><ul class="miss">${miss.map(l=>`<li><a href="#" onclick="step(${L.indexOf(l)});return false">${esc(l.id)} · ${esc(l.p)}</a></li>`).join("")}</ul>`:""}
+ ${fails.length?`<p><span class="chip f">${fails.length} FAIL</span> each needs corrective action and an NCR # before acceptance.</p>`:""}
+ ${nonote.length?`<p><span class="chip n">${nonote.length} need a note</span> (N/A, Fail or extra photo).</p>`:""}
+ <button class="big" onclick="formView()">View as the paper form<small>${M.form}, filled from the phone, in form order</small></button>
+ <p class="note" id="upq">${queueText()}</p><button class="big ${ok?"red":"light"}" onclick="closeJob(${ok})">${ok?"Save the record and close":"Save what's done (job stays open)"}</button>
+ <button class="big light" onclick="step(0)">◀ Back to step 1</button>${foot()}`}
+function lineValue(l){const a=S.ans[l.id]||{};if(l.t==="reading"||l.t==="field"||l.t==="choice")return a.v||"";if(l.t==="gate")return a.ok?("Checked "+(a.ini||"")):"";
+ if(l.t==="group")return l.items.map((it,k)=>it+": "+(((a.g||{})[k])||"-")).join("; ");if(l.t==="sign")return l.roles.map((r,k)=>{const x=(a.sig||{})[k];return x&&x.img?r+": "+x.name+" "+x.at+" ET":""}).filter(Boolean).join("; ");return""}
+async function closeJob(ok){busy("Uploading photos…");await pump();let wait=0;Object.values(S.ans).forEach(a=>(a.photos||[]).forEach(p=>{if(p.up!=="ok")wait++}));
+ if(wait){tell(wait+" photo(s) are still waiting for signal. They stay on this phone; try again when you have signal. If the phone or app fails, finish on the paper Appendix C.");return finish()}
+ busy("Saving the record…");formView();const html=document.querySelector(".form").outerHTML;const q=lines().find(l=>l.t==="sign");const qa=q?(S.ans[q.id]||{}):{};
+ const rec={jobId:JOB["Job ID"],wo:S.mode==="WO"?JOB["Job ID"]:"",mode:S.mode,version:VERSION,device:ME.label,complete:ok,locked:qa.locked||"",hash:qa.hash||"",savedAt:nowET(),
+  lines:lines().filter(l=>!(l.t==="photo")).map(l=>({step:l.id,title:l.p,status:({p:"Pass",f:"Fail",n:"N/A","":"Missing"})[status(l)]||"",value:lineValue(l),note:(S.ans[l.id]||{}).note||""})),
+  html:`<html><body style="font-family:Arial">${$("app").querySelector("header")?"":""}<h1 style="font-size:18px">DU3 ${esc(MODES[S.mode].title)} · ${esc(JOB["Job ID"])} · ${BUILD}</h1>${html}</body></html>`};
+ try{const r=await call("apiSaveRecord",PIN,rec);S.savedAt=nowET();persistNow();try{localStorage.removeItem("du3cur")}catch(e){}$("app").innerHTML=`<h2>Saved</h2><p>The record, the filled form (PDF) and ${queueText()} are in the vehicle's folder in Drive.</p>
+  <button class="big light" onclick="home()">◀ Jobs</button>${foot()}`}catch(e){tell("Couldn't save: "+(e.message||e)+". Nothing is lost on this phone; try again with signal.");finish()}}
+function formView(){S.screen="form";const L=lines(),M=MODES[S.mode];const bySec={};
+ L.forEach(l=>{(bySec[l.sec]=bySec[l.sec]||[]).push(l)});
+ const res=l=>{const a=S.ans[l.id]||{};if(a.na)return"N/A";if(l.t==="reading")return a.v?a.v+" "+l.unit:"";if(l.t==="field")return a.v||"";if(l.t==="choice")return a.v||"";if(l.t==="photo")return a.photos&&a.photos.length?"Photo ×"+a.photos.length:"";if(l.t==="gate")return a.ok?"✓ "+(a.ini||""):"";const s=status(l);return s==="p"?(l.t==="check"?"Done":"Pass"):s==="f"?"Fail":""};
+ $("app").innerHTML=`<div class="form"><h2>${esc(M.form)}</h2><table class="hdr">${M.header.map(r=>`<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join("")}</table>
+ ${Object.keys(bySec).map(sec=>`<h3>${esc(sec)}</h3><table>${bySec[sec].map(l=>l.t==="group"?l.items.map((it,k)=>`<tr><td>${esc(it)}</td><td class="r">${((S.ans[l.id]||{}).g||{})[k]||""}</td></tr>`).join(""):`<tr><td>${esc(l.id)} · ${esc(l.p)}${(S.ans[l.id]||{}).note?`<br><i>${esc(S.ans[l.id].note)}</i>`:""}</td><td class="r">${esc(res(l))}</td></tr>`).join("")}</table>`).join("")}
+ ${(()=>{const q=L.find(l=>l.t==="sign");if(!q)return"";const a=S.ans[q.id]||{},sg=a.sig||{};return `<h3>Sign-off</h3><table>${q.roles.map((r,k)=>`<tr><td>${esc(r)}<br>${esc((sg[k]||{}).name||"")}</td><td>${sg[k]&&sg[k].img?`<img src="${sg[k].img}" style="width:140px"><br>${esc(sg[k].at)} ET`:""}</td></tr>`).join("")}</table>${a.locked?`<p><b>Locked ${esc(a.locked)} ET · fingerprint ${esc(a.hash)}</b></p>`:""}`})()}</div>
+ <p class="note">This is the filled Appendix C the app uploads as a PDF with the signatures, time stamps and lock. Records Management files it read-only.</p>
+ <button class="big light" onclick="finish()">◀ Back</button>${foot()}`;window.scrollTo(0,0)}
+function foot(){return`<footer><b>One Team, One Solution: Everybody Wins</b><br>DU3 Photo App (DEV) for MBTA Contract C90CN01, in the DU3 Reporting Standard look, by Deveson. L3Harris internal.</footer>`}
+
+let x0=null,y0=0,t0=0;
+function typingBox(t){return t&&(t.tagName==="TEXTAREA"||(t.tagName==="INPUT"&&/^(text|number|search|email|tel)$/i.test(t.type||"text")))||(t&&t.tagName==="CANVAS")}
+document.addEventListener("touchstart",e=>{x0=null;if((S.screen!=="step"&&S.screen!=="finish")||typingBox(e.target)||e.touches.length>1)return;x0=e.touches[0].clientX;y0=e.touches[0].clientY;t0=Date.now()},{passive:true});
+document.addEventListener("touchend",e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0,dt=Date.now()-t0;x0=null;
+ if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy)*1.5||dt>900)return;
+ if(S.screen==="finish"){if(dx>0)step(S.i);return}
+ if(S.screen==="step"){if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();go(dx<0?1:-1)}},{passive:true});
+var NOIMG="data:image/svg+xml;utf8,"+encodeURIComponent('<svg xmlns="http:\/\/www.w3.org\/2000\/svg" width="200" height="150"><rect width="200" height="150" fill="#E6E9EF"/><text x="100" y="80" font-family="Arial" font-size="16" text-anchor="middle" fill="#1F2A44">Photo not on phone</text></svg>');
+var _db=null;
+function idb(){if(_db)return _db;_db=new Promise((ok,no)=>{try{const q=indexedDB.open("du3photos",1);q.onupgradeneeded=()=>q.result.createObjectStore("img");q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)}catch(e){no(e)}});return _db}
+function idbPut(k,v){if(!k)return;idb().then(d=>{d.transaction("img","readwrite").objectStore("img").put(v,k)}).catch(()=>{})}
+function idbDel(k){if(!k)return;idb().then(d=>{d.transaction("img","readwrite").objectStore("img").delete(k)}).catch(()=>{})}
+function idbGet(k){return idb().then(d=>new Promise(ok=>{const q=d.transaction("img").objectStore("img").get(k);q.onsuccess=()=>ok(q.result||null);q.onerror=()=>ok(null)})).catch(()=>null)}
+function saveKey(){return JOB&&S.mode?"du3job|"+JOB["Job ID"]+"|"+S.mode:null}
+var _pt=null;
+function persist(){if(!saveKey()||S.screen==="home"||S.screen==="pick")return;clearTimeout(_pt);_pt=setTimeout(persistNow,250)}
+function persistNow(){const k=saveKey();if(!k)return;
+ const ans={};Object.keys(S.ans).forEach(id=>{const a=Object.assign({},S.ans[id]);a.photos=(a.photos||[]).map(p=>({uid:p.uid,mime:p.mime,fileName:p.fileName,takenMs:p.takenMs,taken:p.taken,up:p.up==="busy"?"wait":p.up,n:p.n,lineId:p.line&&p.line.id,fileId:p.fileId,photoId:p.photoId,url:p.url,hasCrop:!!p.crop}));ans[id]=a});
+ try{localStorage.setItem(k,JSON.stringify({i:S.i,crop:S.crop,extras:S.extras,ans,savedAt:S.savedAt||""}));localStorage.setItem("du3cur",JSON.stringify({job:JOB["Job ID"],mode:S.mode}))}catch(e){}}
+function clearSaved(){const k=saveKey();if(!k)return;try{const s=JSON.parse(localStorage.getItem(k)||"null");if(s)Object.values(s.ans).forEach(a=>(a.photos||[]).forEach(p=>idbDel(p.uid)));localStorage.removeItem(k);localStorage.removeItem("du3cur")}catch(e){}}
+function restore(){const k=saveKey();let s=null;try{s=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}if(!s)return false;
+ S.extras=s.extras||[];S.crop=!!s.crop;S.ans=s.ans||{};S.savedAt=s.savedAt||"";const L=lines();const byId={};L.forEach(l=>byId[l.id]=l);
+ const loads=[];Object.values(S.ans).forEach(a=>(a.photos||[]).forEach(p=>{p.line=byId[p.lineId]||{id:p.lineId,p:p.lineId};loads.push(idbGet(p.uid).then(v=>{if(v){p.src=v.src;p.crop=v.crop}}))}));
+ $("sub").textContent="· "+MODES[S.mode].name;step(Math.min(s.i||0,L.length-1));
+ Promise.all(loads).then(()=>{let lost=0;Object.values(S.ans).forEach(a=>(a.photos||[]).forEach(p=>{if(!p.src&&p.up!=="ok")lost++}));render();pump();
+  if(lost)tell(lost+" photo(s) taken earlier are no longer on this phone and were not uploaded. Please retake them.")});
+ return true}
+function resumeCur(){let c=null;try{c=JSON.parse(localStorage.getItem("du3cur")||"null")}catch(e){}if(!c)return false;if(c.mode==="WO"){openWO(c.job);return true}const k=JOBS.findIndex(J=>J["Job ID"]===c.job);if(k<0)return false;
+ JOB=JOBS[k];busy("Picking up where you left off…");loadMode(c.mode);return true}
+function purgeClosed(){const open={};JOBS.forEach(J=>open[J["Job ID"]]=1);let kept=0;
+ try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf("du3job|")===0)ks.push(k)}
+  ks.forEach(k=>{const id=k.split("|")[1];if(open[id])return;if(/^WO-/.test(id)&&(!WOS||WOS.indexOf(id)>=0))return;let s=null;try{s=JSON.parse(localStorage.getItem(k)||"null")}catch(e){}
+   const waiting=s?Object.values(s.ans||{}).some(a=>(a.photos||[]).some(p=>p.up!=="ok")):false;
+   if(waiting){kept++;return}
+   if(s)Object.values(s.ans||{}).forEach(a=>(a.photos||[]).forEach(p=>idbDel(p.uid)));localStorage.removeItem(k)});
+  const c=JSON.parse(localStorage.getItem("du3cur")||"null");if(c&&!open[c.job]&&!(c.mode==="WO"&&(!WOS||WOS.indexOf(c.job)>=0)))localStorage.removeItem("du3cur")}catch(e){}
+ if(kept)setTimeout(()=>tell(kept+" closed job(s) still have photos on this phone that never uploaded. They are kept. Call L3Harris:DU3."),500)}
+async function openWO(id){busy("Opening work order "+id+"…");
+ try{const r=await call("apiWorkOrder",PIN,id);JOB=r.job;VERSION=r.version;const c=r.contact||{};
+  const hdr=[["Work order",JOB["Job ID"]+(JOB["Rev"]?" · Rev "+JOB["Rev"]:"")],["Issued to",JOB["Issued to"]],["Unit",JOB["Unit"]+" · "+JOB["Vehicle"]],["VCH serial",JOB["VCH serial"]],["Vehicle contact",(c.b10||"")+(c.phone?" · "+c.phone:"")]].filter(x=>x[1]&&String(x[1]).trim());
+  MODES.WO={name:"Work order",title:"Work order "+JOB["Job ID"],form:"DU3 Work Order "+JOB["Job ID"]+" · Returned "+JOB["Issued to"],header:hdr,phone:c.phone||"",lines:r.steps.map(rowToLine)};job("WO")}
+ catch(e){tell("Couldn't open work order "+id+": "+(e.message||e)+". No connection? Use the paper work order form.");home()}}
+function startOver(){ask("Start this job again from the first step? Answers and photos not yet uploaded are cleared from this phone. Uploaded photos stay in Drive.","Start over",()=>{clearSaved();job(S.mode)})}
+var _render0=render;render=function(){_render0();persist();if(_rec){const b=$("mic"),s=$("micsub");if(b)b.classList.add("live");if(s)s.textContent="Listening. Tap again to stop."}};
+var _rb0=refreshBadges;refreshBadges=function(){_rb0();persist()};
+document.addEventListener("input",persist);
+var _f0=finish;finish=function(){_f0();$("app").insertAdjacentHTML("beforeend",'<button class="big light" onclick="startOver()">Start this job over</button>')};document.addEventListener("change",persist);
+function hasMouse(){try{return window.matchMedia("(any-pointer:fine)").matches&&!window.matchMedia("(pointer:coarse)").matches}catch(e){return false}}
+function isWide(){return hasMouse()&&window.innerWidth>=900}
+function isImg(f){return f&&String(f.type).indexOf("image")===0}
+function snapMany(fs){[...(fs||[])].filter(isImg).forEach(f=>snap({files:[f]}))}
+function takesPhotos(l){return l&&(l.t==="photo"||(l.t==="gate"&&l.photo)||(l.t==="field"&&l.ocr))}
+function addFiles(fs){const l=lines()[S.i];if(!takesPhotos(l)){tell("This step doesn't take photos. Go to a photo step first.");return}
+ const im=[...(fs||[])].filter(isImg);if(!im.length)return;
+ if(l.t==="field")ocrSnap({files:[im[0]]});else im.forEach(f=>snap({files:[f]}))}
+function side(){const w=isWide(),on=w&&S.screen==="step"&&MODES[S.mode];document.body.classList.toggle("wide",w);document.body.classList.toggle("stepping",!!on);
+ const el=$("side");if(!el)return;if(!on){el.innerHTML="";return}
+ const L=lines(),M=MODES[S.mode];let sec=null,out="",done=0;
+ L.forEach((l,i)=>{const s=status(l);if(s)done++;if(l.sec!==sec){sec=l.sec;out+=`<h4>${esc(sec||"")}</h4>`}
+  const ic=s==="p"?"✓":s==="f"?"✗":s==="n"?"–":"○",cl=s||"m";
+  out+=`<div class="si${i===S.i?" cur":""}" onclick="step(${i})"><span class="ic ${cl}">${ic}</span><span>${esc(l.id)} · ${esc(l.p)}</span></div>`});
+ el.innerHTML=`<div class="top">${esc(M.title)}</div><div class="note">${esc(JOB["Job ID"]||"")} · ${done} of ${L.length} done · <span id="upq2">${esc(queueText())}</span></div>${out}
+ <button class="fin" onclick="finish()">Finish ▶</button>
+ <div class="keys"><kbd>→</kbd> <kbd>←</kbd> next / back · <kbd>D</kbd> done · <kbd>P</kbd> pass · <kbd>F</kbd> fail · <kbd>N</kbd> N/A<br>Photos: drag files onto the page, or paste a screenshot with <kbd>Ctrl</kbd>+<kbd>V</kbd> (Windows: <kbd>Win</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> to snip).</div>`;
+ const c=el.querySelector(".si.cur");if(c&&c.scrollIntoView)c.scrollIntoView({block:"nearest"})}
+function edges(){const fin=S.screen==="finish",on=(S.screen==="step"||fin)&&!isWide()&&!!MODES[S.mode];document.body.classList.toggle("showedge",on);if(!on)return;
+ const L=$("edgeL"),R=$("edgeR");if(L)L.classList.toggle("off",!fin&&S.i===0);if(R)R.classList.toggle("off",fin);if(fin){edgeWake();return}if(R)R.textContent=S.i===lines().length-1?"✓":"›";edgeWake()}
+let _et=null;function edgeWake(){document.body.classList.remove("edgeidle");clearTimeout(_et);_et=setTimeout(()=>document.body.classList.add("edgeidle"),3000)}
+document.addEventListener("touchstart",()=>{if(document.body.classList.contains("showedge"))edgeWake()},{passive:true});
+document.addEventListener("scroll",()=>{if(document.body.classList.contains("showedge"))edgeWake()},{passive:true});
+var _side0=side;side=function(){_side0();edges()};
+let sideF=0.5;try{const v=parseFloat(localStorage.getItem("du3sideF"));if(v>0.15&&v<0.85)sideF=v}catch(e){}
+function applySide(){const w=window.innerWidth,px=Math.max(240,Math.min(w-380,Math.round(w*sideF)));document.documentElement.style.setProperty("--sideW",px+"px")}
+applySide();window.addEventListener("resize",applySide);
+(function(){const sp=$("split");if(!sp)return;let on=false;
+ sp.addEventListener("pointerdown",e=>{on=true;sp.classList.add("drag");document.body.classList.add("splitting");try{sp.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
+ sp.addEventListener("pointermove",e=>{if(!on)return;sideF=Math.max(0.15,Math.min(0.85,e.clientX/window.innerWidth));applySide()});
+ const end=()=>{if(!on)return;on=false;sp.classList.remove("drag");document.body.classList.remove("splitting");try{localStorage.setItem("du3sideF",String(sideF))}catch(x){}};
+ sp.addEventListener("pointerup",end);sp.addEventListener("pointercancel",end);
+ sp.addEventListener("dblclick",()=>{sideF=0.5;applySide();try{localStorage.setItem("du3sideF","0.5")}catch(x){}})})();
+function goHome(){if(!ME)return;if(_rec)try{_rec.stop()}catch(e){}
+ if(S.mode==="WO"&&MODES.WO){S.screen="job";job("WO");return}
+ const k=JOB?JOBS.indexOf(JOB):-1;if(k>=0)pickJob(k);else home();window.scrollTo(0,0)}
+(function(){const im=document.querySelector("header img");if(!im)return;im.style.cursor="pointer";im.title="Home";im.setAttribute("role","button");im.setAttribute("aria-label","Home");im.addEventListener("click",goHome)})();
+var _render2=render;render=function(){_render2();side()};
+try{new MutationObserver(()=>side()).observe($("app"),{childList:true})}catch(e){}
+window.addEventListener("resize",()=>side());
+document.addEventListener("keydown",e=>{if(S.screen!=="step"||e.ctrlKey||e.metaKey||e.altKey)return;
+ const t=e.target;if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return;const d=$("dlg");if(d&&d.style.display!=="none"&&d.offsetParent!==null)return;
+ const l=lines()[S.i],k=e.key;
+ if(k==="ArrowRight"||k==="PageDown"){go(1);e.preventDefault()}
+ else if(k==="ArrowLeft"||k==="PageUp"){go(-1);e.preventDefault()}
+ else if((k==="d"||k==="D")&&l.t==="check")pick("done")
+ else if((k==="p"||k==="P")&&l.t==="pf")pick("P")
+ else if((k==="f"||k==="F")&&l.t==="pf")pick("F")
+ else if(k==="n"||k==="N"){if(l.t==="photo")setNA();else if(l.t==="check"||l.t==="pf")pick("na")}});
+let _dragN=0;
+document.addEventListener("dragenter",e=>{if(S.screen!=="step")return;_dragN++;document.body.classList.add("dragging");e.preventDefault()});
+document.addEventListener("dragleave",()=>{if(--_dragN<=0){_dragN=0;document.body.classList.remove("dragging")}});
+document.addEventListener("dragover",e=>{if(S.screen==="step")e.preventDefault()});
+document.addEventListener("drop",e=>{_dragN=0;document.body.classList.remove("dragging");if(S.screen!=="step")return;e.preventDefault();addFiles(e.dataTransfer&&e.dataTransfer.files)});
+document.addEventListener("paste",e=>{if(S.screen!=="step")return;const t=e.target;if(t&&/INPUT|TEXTAREA/.test(t.tagName))return;
+ const fs=[...((e.clipboardData&&e.clipboardData.items)||[])].filter(x=>x.kind==="file").map(x=>x.getAsFile()).filter(Boolean);
+ if(fs.length){e.preventDefault();addFiles(fs)}});
+var _rb2=refreshBadges;refreshBadges=function(){_rb2();const q=$("upq2");if(q)q.textContent=queueText()};
+try{PIN=localStorage.getItem("du3pin")||""}catch(e){}
+if(PIN)login();else pinScreen();
+</script>
+<div id="dlg" class="dlg" style="display:none"><div class="dlgbox"><div id="dlgmsg" class="dlgmsg"></div><div id="dlgimg"></div><div class="seg" id="dlgbtns"></div></div></div>
+</body>
+</html>
