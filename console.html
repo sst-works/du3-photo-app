@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DU3 CONSOLE (DEV)</title>
+<style>
+:root{--red:#E5232A;--ink:#2A2F2F;--grey:#3D4345;--blue:#1F4E79;--line:#D9DCDD;--ok:#1E7B3A;--soft:#F4F5F5}
+*{box-sizing:border-box}body{margin:0;font:16px Arial,Helvetica,sans-serif;color:var(--ink);background:#fff}
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:3px solid var(--red)}
+header b{font-size:20px}header .du3{color:var(--red)}header .who{margin-left:auto;color:var(--grey);font-size:14px}
+main{display:grid;grid-template-columns:minmax(260px,1fr) 2fr;gap:16px;padding:16px;max-width:1300px;margin:0 auto}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+section{border:1px solid var(--line);border-radius:10px;padding:12px}h2{margin:0 0 10px;font-size:18px}
+button{font:700 15px Arial;border:0;border-radius:8px;padding:10px 14px;background:var(--blue);color:#fff;cursor:pointer}
+button.red{background:var(--red)}button.light{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+textarea,input[type=password],input[type=tel]{width:100%;font:16px Arial;padding:8px;border:1px solid var(--line);border-radius:8px}
+textarea{min-height:70px}.p{display:block;padding:4px 0}.note{color:var(--grey);font-size:14px}
+.al{padding:8px 10px;border-radius:8px;color:#fff;margin:0 0 6px}.al a{color:#fff}
+.info{background:#5B6770}.watch{background:#B7791F}.warning{background:#C0262D}.safety{background:#9B0000}
+.m{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:0 0 8px}.m.unread{border:2px solid var(--red)}
+.m .h{font-size:13px;color:var(--grey)}.m .t{margin:4px 0}.err{background:#FDECEC;color:#9B0000;padding:8px;border-radius:8px;margin:0 0 8px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}footer{text-align:center;color:var(--grey);font-size:12px;padding:16px}
+</style>
+</head>
+<body>
+<header><b><span class="du3">DU3</span> CONSOLE</b><span class="note">dispatch for DU3 MOBILE · DEV</span><span class="who" id="who"></span></header>
+<div id="root"></div>
+<footer id="foot"></footer>
+<script>
+var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",VERSION:"0.1.0",UPDATED:"2026-11-21 11:20 PM ET",CONTRACT:"MBTA Contract C90CN01"};
+var PIN="",D=null,T=null;
+const $=id=>document.getElementById(id);
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function call(fn,...args){return fetch(DU3.API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn:fn,args:args}),redirect:"follow",credentials:"omit",cache:"no-store"}).then(r=>r.text()).then(t=>{let j=null;try{j=JSON.parse(t)}catch(e){throw new Error("The DU3 Cloud server needs its update.")}if(!j||!j.ok)throw new Error((j&&j.error)||"Server error");return j.result})}
+function w(s){return esc(String(s||"").slice(5,16))}
+$("foot").innerHTML=`DU3 CONSOLE (DEV) for ${esc(DU3.CONTRACT)} · v${esc(DU3.VERSION)} · updated ${esc(DU3.UPDATED)}`;
+function signIn(msg){$("root").innerHTML=`<main style="grid-template-columns:1fr;max-width:420px"><section><h2>Sign in</h2>${msg?`<div class="err">${esc(msg)}</div>`:""}<input type="password" id="pin" inputmode="numeric" autocomplete="off" placeholder="PIN" onkeydown="if(event.key==='Enter')go()"><p></p><button class="red" onclick="go()">Sign in</button><p class="note">CONSOLE is for dispatch PINs only.</p></section></main>`;$("pin").focus()}
+async function go(){PIN=$("pin").value.trim();await load(true)}
+async function load(first){try{D=await call("apiInbox",PIN);if(!D.console){D=null;PIN="";return signIn("This PIN cannot open CONSOLE.")}$("who").textContent=D.me.label;paint();if(first){if(T)clearInterval(T);T=setInterval(()=>{if(!document.querySelector("[id^=rt-]"))load(false)},60000)}}catch(e){if(first)signIn(e.message||String(e))}}
+function readLine(m){const r=m.read||{},k=Object.keys(r);return k.map(x=>esc(x)+": "+(r[x]?"read "+w(r[x]):"<b>not read</b>")).join("<br>")}
+function paint(){const sel={};document.querySelectorAll("input[data-p]:checked").forEach(c=>sel[c.value]=1);const txt=$("ct")?$("ct").value:"";
+ $("root").innerHTML=`<main><div><section><h2>New message</h2><div class="tools"><button class="light" onclick="pick(1)">All</button><button class="light" onclick="pick('RLC')">RLC</button><button class="light" onclick="pick('L3H')">L3H</button><button class="light" onclick="pick(0)">None</button></div>
+ ${D.people.map(p=>`<label class="p"><input type="checkbox" data-p="1" data-c="${esc(p.company)}" value="${esc(p.label)}"${sel[p.label]?" checked":""}> ${esc(p.label)} <span class="note">${esc(p.company)}</span></label>`).join("")||`<p class="note">Nobody to send to.</p>`}
+ <textarea id="ct" maxlength="500" placeholder="Message">${esc(txt)}</textarea><p></p><button class="red" onclick="send()">Send</button><div id="sendMsg"></div></section><p></p>
+ <section><h2>Alerts on the crews' screens</h2>${D.alerts.length?D.alerts.map(a=>`<div class="al ${a.sev}"><b>${esc(a.sev.toUpperCase())}</b> · ${esc(a.text)} <small>${a.sites.length?esc(a.sites.join(", ")):"all sites"}${a.end?" · until "+w(a.end):""}</small>${a.source?` · <a href="${esc(a.source)}" target="_blank" rel="noopener">source</a>`:""}</div>`).join(""):`<p class="note">No alerts now. Alerts come from the DU3 Resource Calendar.</p>`}</section></div>
+ <section><h2>Messages <button class="light" style="float:right" onclick="load(false)">↻ Refresh</button></h2>${D.messages.length?D.messages.map(m=>`<div class="m${m.unread?" unread":""}"><div class="h">${m.mine?"To "+esc(m.to.join(", ")):"From <b>"+esc(m.from)+"</b>"} · ${w(m.sent)}</div><div class="t">${esc(m.text)}</div>${m.mine?`<div class="h">${readLine(m)}</div>`:""}<button class="light" onclick="rOpen('${esc(m.id)}')">↩ Reply</button><div id="rp-${esc(m.id)}"></div></div>`).join(""):`<p class="note">No messages yet.</p>`}</section></main>`;
+ const ids=D.messages.filter(m=>m.unread).map(m=>m.id);if(ids.length)call("apiRead",PIN,ids).catch(()=>{})}
+function pick(c){document.querySelectorAll("input[data-p]").forEach(x=>x.checked=c===1?true:c===0?false:x.dataset.c===c)}
+async function send(){const to=[...document.querySelectorAll("input[data-p]:checked")].map(x=>x.value),t=$("ct").value.trim();if(!to.length||!t){$("sendMsg").innerHTML=`<div class="err">Pick who to send to and type a message.</div>`;return}
+ try{await call("apiSend",PIN,to,t,"");$("ct").value="";document.querySelectorAll("input[data-p]").forEach(x=>x.checked=false);await load(false)}catch(e){$("sendMsg").innerHTML=`<div class="err">${esc(e.message||e)}</div>`}}
+function rOpen(id){$("rp-"+id).innerHTML=`<textarea id="rt-${id}" maxlength="500" placeholder="Reply"></textarea><button class="red" onclick="rSend('${id}')">Send reply</button>`}
+async function rSend(id){const t=$("rt-"+id).value.trim();if(!t)return;try{await call("apiSend",PIN,[],t,id);await load(false)}catch(e){$("rp-"+id).insertAdjacentHTML("afterbegin",`<div class="err">${esc(e.message||e)}</div>`)}}
+signIn();
+</script>
+</body>
+</html>
