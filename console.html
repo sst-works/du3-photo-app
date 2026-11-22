@@ -20,7 +20,7 @@ textarea{min-height:70px}.p{display:block;padding:4px 0}.note{color:var(--grey);
 .info{background:#5B6770}.watch{background:#B7791F}.warning{background:#C0262D}.safety{background:#9B0000}
 .m{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:0 0 8px}.m.unread{border:2px solid var(--red)}
 .m .h{font-size:13px;color:var(--grey)}.m .t{margin:4px 0}.err{background:#FDECEC;color:#9B0000;padding:8px;border-radius:8px;margin:0 0 8px}
-.tabs{display:flex;gap:6px;max-width:1300px;margin:12px auto 0;padding:0 16px}.tabs button{background:var(--soft);color:var(--ink);border:1px solid var(--line)}.tabs button.on{background:var(--ink);color:#fff}.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:8px 0 14px}.tile{border:1px solid var(--line);border-radius:10px;padding:10px}.tile .n{font:800 24px Arial;color:var(--ink)}.tile .l{font-size:13px;color:var(--grey)}.tile .s{font-size:12px;color:var(--grey);margin-top:2px}.cols{display:grid;grid-template-columns:1fr 2fr;gap:16px}@media(max-width:800px){.cols{grid-template-columns:1fr}}h3{font-size:15px;margin:10px 0 6px}.cv{padding:4px 8px;font-size:14px;opacity:.55}.tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}footer{text-align:center;color:var(--grey);font-size:12px;padding:16px}
+.tabs{display:flex;gap:6px;max-width:1300px;margin:12px auto 0;padding:0 16px}.tabs button{background:var(--soft);color:var(--ink);border:1px solid var(--line)}.tabs button.on{background:var(--ink);color:#fff}.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:8px 0 14px}.tile{border:1px solid var(--line);border-radius:10px;padding:10px}.tile .n{font:800 24px Arial;color:var(--ink)}.tile .l{font-size:13px;color:var(--grey)}.tile .s{font-size:12px;color:var(--grey);margin-top:2px}.cols{display:grid;grid-template-columns:1fr 2fr;gap:16px}@media(max-width:800px){.cols{grid-template-columns:1fr}}h3{font-size:15px;margin:10px 0 6px}.cn{border-left:3px solid var(--line);padding:6px 10px;margin:6px 0}.tag{background:#FFF1E6;color:#9A4A00;font-size:12px;padding:1px 6px;border-radius:6px}.cv{padding:4px 8px;font-size:14px;opacity:.55}.tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}footer{text-align:center;color:var(--grey);font-size:12px;padding:16px}
 </style>
 </head>
 <body>
@@ -28,7 +28,7 @@ textarea{min-height:70px}.p{display:block;padding:4px 0}.note{color:var(--grey);
 <div id="root"></div>
 <footer id="foot"></footer>
 <script>
-var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",VERSION:"0.2.1",UPDATED:"2026-11-22 12:05 AM ET",CONTRACT:"MBTA Contract C90CN01"};
+var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",VERSION:"0.3.0",UPDATED:"2026-11-22 5:40 AM ET",CONTRACT:"MBTA Contract C90CN01"};
 var PIN="",D=null,T=null;
 const $=id=>document.getElementById(id);
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -40,8 +40,8 @@ async function go(){PIN=$("pin").value.trim();await load(true)}
 async function load(first){try{D=await call("apiInbox",PIN);if(!D.console&&!D.dev){D=null;PIN="";return signIn("This PIN cannot open CONSOLE.")}if(!D.console)VIEW="dev";$("who").textContent=D.me.label;paint();if(first){if(T)clearInterval(T);T=setInterval(()=>{if(!document.querySelector("[id^=rt-]"))load(false)},60000)}}catch(e){if(first)signIn(e.message||String(e))}}
 function readLine(m){const r=m.read||{},k=Object.keys(r);return k.map(x=>esc(x)+": "+(r[x]?"read "+w(r[x]):"<b>not read</b>")).join("<br>")}
 var VIEW="dispatch";
-function tabs(){return D&&D.dev?`<div class="tabs">${D.console?`<button class="${VIEW==='dispatch'?'on':''}" onclick="VIEW='dispatch';paint()">Dispatch</button>`:""}<button class="${VIEW==='dev'?'on':''}" onclick="VIEW='dev';paint()">Dev</button></div>`:""}
-function paint(){if(D&&!D.console)VIEW="dev";if(VIEW==="dev"&&D&&D.dev)return devPaint();const sel={};document.querySelectorAll("input[data-p]:checked").forEach(c=>sel[c.value]=1);const txt=$("ct")?$("ct").value:"";
+function tabs(){if(!D)return"";const b=(v,l)=>`<button class="${VIEW===v?'on':''}" onclick="VIEW='${v}';paint()">${l}</button>`;const t=(D.console?b('dispatch','Dispatch')+b('crew','Crew'):"")+(D.dev?b('dev','Dev'):"");return D.console||D.dev?`<div class="tabs">${t}</div>`:""}
+function paint(){if(D&&!D.console)VIEW="dev";if(VIEW==="dev"&&D&&D.dev)return devPaint();if(VIEW==="crew"&&D&&D.console)return crewPaint();const sel={};document.querySelectorAll("input[data-p]:checked").forEach(c=>sel[c.value]=1);const txt=$("ct")?$("ct").value:"";
  $("root").innerHTML=tabs()+`<main><div><section><h2>New message</h2><div class="tools"><button class="light" onclick="pick(1)">All</button><button class="light" onclick="pick('RLC')">RLC</button><button class="light" onclick="pick('L3H')">L3H</button><button class="light" onclick="pick(0)">None</button></div>
  ${D.people.map(p=>`<label class="p"><input type="checkbox" data-p="1" data-c="${esc(p.company)}" value="${esc(p.label)}"${sel[p.label]?" checked":""}> ${esc(p.label)} <span class="note">${esc(p.company)}</span> <button class="light cv" onclick="event.preventDefault();startCall('voice','${esc(p.label)}')" title="Voice call (coming later)">📞</button><button class="light cv" onclick="event.preventDefault();startCall('video','${esc(p.label)}')" title="Video call (coming later)">🎥</button></label>`).join("")||`<p class="note">Nobody to send to.</p>`}
  <textarea id="ct" maxlength="500" placeholder="Message">${esc(txt)}</textarea><p></p><button class="red" onclick="send()">Send</button><div id="sendMsg"></div></section><p></p>
@@ -55,6 +55,17 @@ async function send(){const to=[...document.querySelectorAll("input[data-p]:chec
 function rOpen(id){$("rp-"+id).innerHTML=`<textarea id="rt-${id}" maxlength="500" placeholder="Reply"></textarea><button class="red" onclick="rSend('${id}')">Send reply</button>`}
 async function rSend(id){const t=$("rt-"+id).value.trim();if(!t)return;try{await call("apiSend",PIN,[],t,id);await load(false)}catch(e){$("rp-"+id).insertAdjacentHTML("afterbegin",`<div class="err">${esc(e.message||e)}</div>`)}}
 
+
+/* Crew tab (Dan 11/22 5:31 AM ET): who reports to whom; message a person or a whole team. Roster from Devices (Role, Reports to, Crew). */
+var PRESEL={};
+function crewPaint(){const C=D.crew;if(!C){$("root").innerHTML=tabs()+`<main style="grid-template-columns:1fr"><section><p class="note">The crew view needs the server update (v0.6.3).</p></section></main>`;return}
+ const can={};D.people.forEach(p=>can[p.label]=1);
+ const kids=l=>C.filter(c=>c.reportsTo===l);
+ const team=l=>{let o=[];kids(l).forEach(k=>{o.push(k.label);o=o.concat(team(k.label))});return o};
+ const crews=[...new Set(C.map(c=>c.crew))];
+ const node=(c,d)=>{const t=team(c.label).filter(x=>can[x]);return `<div class="cn" style="margin-left:${d*22}px"><div><b>${esc(c.label)}</b> <span class="note">${esc(c.role||"")}</span>${c.active?"":` <span class="tag">not active yet</span>`}</div><div class="tools">${can[c.label]?`<button class="light" onclick="msgTo(['${esc(c.label)}'])">✉ Message</button>`:""}${t.length?`<button class="light" onclick="msgTo(${esc(JSON.stringify(t))})">✉ Team (${t.length})</button>`:""}</div></div>`+kids(c.label).map(k=>node(k,d+1)).join("")};
+ $("root").innerHTML=tabs()+`<main style="grid-template-columns:1fr">${crews.map(cr=>{const top=C.filter(c=>c.crew===cr&&(!c.reportsTo||!C.some(x=>x.label===c.reportsTo)));return `<section><h2>${esc(cr)}</h2>${top.map(c=>node(c,0)).join("")}<p class="note">People marked "not active yet" have no PIN switched on, so they can't be messaged. Roster: MOBILE Checklists, Devices tab (Role, Reports to, Crew).</p></section>`}).join("<p></p>")||`<section><p class="note">No crews yet.</p></section>`}</main>`}
+function msgTo(list){PRESEL={};list.forEach(l=>PRESEL[l]=1);VIEW="dispatch";paint();document.querySelectorAll("input[data-p]").forEach(x=>x.checked=!!PRESEL[x.value]);PRESEL={};const t=$("ct");if(t)t.focus()}
 /* Dev tab (Dan 11/21 11:56 PM ET): developer exchange metrics; only PINs with Dev view = Y (Dan, Pao). Server checks too. */
 function hrs(h){if(h==null)return"–";return h<1?Math.round(h*60)+" min":h<48?h.toFixed(1)+" h":(h/24).toFixed(1)+" days"}
 async function devPaint(){$("root").innerHTML=tabs()+`<main style="grid-template-columns:1fr"><section><p class="note">Loading…</p></section></main>`;
