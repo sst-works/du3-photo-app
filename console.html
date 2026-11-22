@@ -28,20 +28,20 @@ textarea{min-height:70px}.p{display:block;padding:4px 0}.note{color:var(--grey);
 <div id="root"></div>
 <footer id="foot"></footer>
 <script>
-var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",VERSION:"0.2.0",UPDATED:"2026-11-22 12:05 AM ET",CONTRACT:"MBTA Contract C90CN01"};
+var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",VERSION:"0.2.1",UPDATED:"2026-11-22 12:05 AM ET",CONTRACT:"MBTA Contract C90CN01"};
 var PIN="",D=null,T=null;
 const $=id=>document.getElementById(id);
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function call(fn,...args){return fetch(DU3.API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn:fn,args:args}),redirect:"follow",credentials:"omit",cache:"no-store"}).then(r=>r.text()).then(t=>{let j=null;try{j=JSON.parse(t)}catch(e){throw new Error("The DU3 Cloud server needs its update.")}if(!j||!j.ok)throw new Error((j&&j.error)||"Server error");return j.result})}
 function w(s){return esc(String(s||"").slice(5,16))}
 $("foot").innerHTML=`DU3 CONSOLE (DEV) for ${esc(DU3.CONTRACT)} · v${esc(DU3.VERSION)} · updated ${esc(DU3.UPDATED)}`;
-function signIn(msg){$("root").innerHTML=`<main style="grid-template-columns:1fr;max-width:420px"><section><h2>Sign in</h2>${msg?`<div class="err">${esc(msg)}</div>`:""}<input type="password" id="pin" inputmode="numeric" autocomplete="off" placeholder="PIN" onkeydown="if(event.key==='Enter')go()"><p></p><button class="red" onclick="go()">Sign in</button><p class="note">CONSOLE is for dispatch PINs only.</p></section></main>`;$("pin").focus()}
+function signIn(msg){$("root").innerHTML=`<main style="grid-template-columns:1fr;max-width:420px"><section><h2>Sign in</h2>${msg?`<div class="err">${esc(msg)}</div>`:""}<input type="password" id="pin" inputmode="numeric" autocomplete="off" placeholder="PIN" onkeydown="if(event.key==='Enter')go()"><p></p><button class="red" onclick="go()">Sign in</button><p class="note">CONSOLE is for dispatch and developer PINs only.</p></section></main>`;$("pin").focus()}
 async function go(){PIN=$("pin").value.trim();await load(true)}
-async function load(first){try{D=await call("apiInbox",PIN);if(!D.console){D=null;PIN="";return signIn("This PIN cannot open CONSOLE.")}$("who").textContent=D.me.label;paint();if(first){if(T)clearInterval(T);T=setInterval(()=>{if(!document.querySelector("[id^=rt-]"))load(false)},60000)}}catch(e){if(first)signIn(e.message||String(e))}}
+async function load(first){try{D=await call("apiInbox",PIN);if(!D.console&&!D.dev){D=null;PIN="";return signIn("This PIN cannot open CONSOLE.")}if(!D.console)VIEW="dev";$("who").textContent=D.me.label;paint();if(first){if(T)clearInterval(T);T=setInterval(()=>{if(!document.querySelector("[id^=rt-]"))load(false)},60000)}}catch(e){if(first)signIn(e.message||String(e))}}
 function readLine(m){const r=m.read||{},k=Object.keys(r);return k.map(x=>esc(x)+": "+(r[x]?"read "+w(r[x]):"<b>not read</b>")).join("<br>")}
 var VIEW="dispatch";
-function tabs(){return D&&D.dev?`<div class="tabs"><button class="${VIEW==='dispatch'?'on':''}" onclick="VIEW='dispatch';paint()">Dispatch</button><button class="${VIEW==='dev'?'on':''}" onclick="VIEW='dev';paint()">Dev</button></div>`:""}
-function paint(){if(VIEW==="dev"&&D&&D.dev)return devPaint();const sel={};document.querySelectorAll("input[data-p]:checked").forEach(c=>sel[c.value]=1);const txt=$("ct")?$("ct").value:"";
+function tabs(){return D&&D.dev?`<div class="tabs">${D.console?`<button class="${VIEW==='dispatch'?'on':''}" onclick="VIEW='dispatch';paint()">Dispatch</button>`:""}<button class="${VIEW==='dev'?'on':''}" onclick="VIEW='dev';paint()">Dev</button></div>`:""}
+function paint(){if(D&&!D.console)VIEW="dev";if(VIEW==="dev"&&D&&D.dev)return devPaint();const sel={};document.querySelectorAll("input[data-p]:checked").forEach(c=>sel[c.value]=1);const txt=$("ct")?$("ct").value:"";
  $("root").innerHTML=tabs()+`<main><div><section><h2>New message</h2><div class="tools"><button class="light" onclick="pick(1)">All</button><button class="light" onclick="pick('RLC')">RLC</button><button class="light" onclick="pick('L3H')">L3H</button><button class="light" onclick="pick(0)">None</button></div>
  ${D.people.map(p=>`<label class="p"><input type="checkbox" data-p="1" data-c="${esc(p.company)}" value="${esc(p.label)}"${sel[p.label]?" checked":""}> ${esc(p.label)} <span class="note">${esc(p.company)}</span> <button class="light cv" onclick="event.preventDefault();startCall('voice','${esc(p.label)}')" title="Voice call (coming later)">📞</button><button class="light cv" onclick="event.preventDefault();startCall('video','${esc(p.label)}')" title="Video call (coming later)">🎥</button></label>`).join("")||`<p class="note">Nobody to send to.</p>`}
  <textarea id="ct" maxlength="500" placeholder="Message">${esc(txt)}</textarea><p></p><button class="red" onclick="send()">Send</button><div id="sendMsg"></div></section><p></p>
