@@ -20,7 +20,7 @@ textarea{min-height:70px}.p{display:block;padding:4px 0}.note{color:var(--grey);
 .info{background:#5B6770}.watch{background:#B7791F}.warning{background:#C0262D}.safety{background:#9B0000}
 .m{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:0 0 8px}.m.unread{border:2px solid var(--red)}
 .m .h{font-size:13px;color:var(--grey)}.m .t{margin:4px 0}.err{background:#FDECEC;color:#9B0000;padding:8px;border-radius:8px;margin:0 0 8px}
-.tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}footer{text-align:center;color:var(--grey);font-size:12px;padding:16px}
+.cv{padding:4px 8px;font-size:14px;opacity:.55}.tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}footer{text-align:center;color:var(--grey);font-size:12px;padding:16px}
 </style>
 </head>
 <body>
@@ -28,7 +28,7 @@ textarea{min-height:70px}.p{display:block;padding:4px 0}.note{color:var(--grey);
 <div id="root"></div>
 <footer id="foot"></footer>
 <script>
-var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",VERSION:"0.1.0",UPDATED:"2026-11-21 11:20 PM ET",CONTRACT:"MBTA Contract C90CN01"};
+var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",VERSION:"0.1.1",UPDATED:"2026-11-21 11:30 PM ET",CONTRACT:"MBTA Contract C90CN01"};
 var PIN="",D=null,T=null;
 const $=id=>document.getElementById(id);
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -41,8 +41,9 @@ async function load(first){try{D=await call("apiInbox",PIN);if(!D.console){D=nul
 function readLine(m){const r=m.read||{},k=Object.keys(r);return k.map(x=>esc(x)+": "+(r[x]?"read "+w(r[x]):"<b>not read</b>")).join("<br>")}
 function paint(){const sel={};document.querySelectorAll("input[data-p]:checked").forEach(c=>sel[c.value]=1);const txt=$("ct")?$("ct").value:"";
  $("root").innerHTML=`<main><div><section><h2>New message</h2><div class="tools"><button class="light" onclick="pick(1)">All</button><button class="light" onclick="pick('RLC')">RLC</button><button class="light" onclick="pick('L3H')">L3H</button><button class="light" onclick="pick(0)">None</button></div>
- ${D.people.map(p=>`<label class="p"><input type="checkbox" data-p="1" data-c="${esc(p.company)}" value="${esc(p.label)}"${sel[p.label]?" checked":""}> ${esc(p.label)} <span class="note">${esc(p.company)}</span></label>`).join("")||`<p class="note">Nobody to send to.</p>`}
+ ${D.people.map(p=>`<label class="p"><input type="checkbox" data-p="1" data-c="${esc(p.company)}" value="${esc(p.label)}"${sel[p.label]?" checked":""}> ${esc(p.label)} <span class="note">${esc(p.company)}</span> <button class="light cv" onclick="event.preventDefault();startCall('voice','${esc(p.label)}')" title="Voice call (coming later)">📞</button><button class="light cv" onclick="event.preventDefault();startCall('video','${esc(p.label)}')" title="Video call (coming later)">🎥</button></label>`).join("")||`<p class="note">Nobody to send to.</p>`}
  <textarea id="ct" maxlength="500" placeholder="Message">${esc(txt)}</textarea><p></p><button class="red" onclick="send()">Send</button><div id="sendMsg"></div></section><p></p>
+ <section><h2>Live call</h2><div id="callArea" class="note" style="min-height:120px;border:1px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px">Voice and video calls with field crews are coming later.<br>The call will show here.</div></section><p></p>
  <section><h2>Alerts on the crews' screens</h2>${D.alerts.length?D.alerts.map(a=>`<div class="al ${a.sev}"><b>${esc(a.sev.toUpperCase())}</b> · ${esc(a.text)} <small>${a.sites.length?esc(a.sites.join(", ")):"all sites"}${a.end?" · until "+w(a.end):""}</small>${a.source?` · <a href="${esc(a.source)}" target="_blank" rel="noopener">source</a>`:""}</div>`).join(""):`<p class="note">No alerts now. Alerts come from the DU3 Resource Calendar.</p>`}</section></div>
  <section><h2>Messages <button class="light" style="float:right" onclick="load(false)">↻ Refresh</button></h2>${D.messages.length?D.messages.map(m=>`<div class="m${m.unread?" unread":""}"><div class="h">${m.mine?"To "+esc(m.to.join(", ")):"From <b>"+esc(m.from)+"</b>"} · ${w(m.sent)}</div><div class="t">${esc(m.text)}</div>${m.mine?`<div class="h">${readLine(m)}</div>`:""}<button class="light" onclick="rOpen('${esc(m.id)}')">↩ Reply</button><div id="rp-${esc(m.id)}"></div></div>`).join(""):`<p class="note">No messages yet.</p>`}</section></main>`;
  const ids=D.messages.filter(m=>m.unread).map(m=>m.id);if(ids.length)call("apiRead",PIN,ids).catch(()=>{})}
@@ -51,6 +52,8 @@ async function send(){const to=[...document.querySelectorAll("input[data-p]:chec
  try{await call("apiSend",PIN,to,t,"");$("ct").value="";document.querySelectorAll("input[data-p]").forEach(x=>x.checked=false);await load(false)}catch(e){$("sendMsg").innerHTML=`<div class="err">${esc(e.message||e)}</div>`}}
 function rOpen(id){$("rp-"+id).innerHTML=`<textarea id="rt-${id}" maxlength="500" placeholder="Reply"></textarea><button class="red" onclick="rSend('${id}')">Send reply</button>`}
 async function rSend(id){const t=$("rt-"+id).value.trim();if(!t)return;try{await call("apiSend",PIN,[],t,id);await load(false)}catch(e){$("rp-"+id).insertAdjacentHTML("afterbegin",`<div class="err">${esc(e.message||e)}</div>`)}}
+/* Voice and video (later phase): needs the DU3 field phone app on the crew's phone. Hook kept. */
+function startCall(kind,who){const a=$("callArea");if(a)a.innerHTML=(kind==="video"?"Video":"Voice")+" call to "+esc(who)+": coming later. For now, call by phone."}
 signIn();
 </script>
 </body>
