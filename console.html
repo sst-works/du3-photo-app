@@ -20,7 +20,7 @@ textarea{min-height:70px}.p{display:block;padding:4px 0}.note{color:var(--grey);
 .info{background:#5B6770}.watch{background:#B7791F}.warning{background:#C0262D}.safety{background:#9B0000}
 .m{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:0 0 8px}.m.unread{border:2px solid var(--red)}
 .m .h{font-size:13px;color:var(--grey)}.m .t{margin:4px 0}.err{background:#FDECEC;color:#9B0000;padding:8px;border-radius:8px;margin:0 0 8px}
-.cv{padding:4px 8px;font-size:14px;opacity:.55}.tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}footer{text-align:center;color:var(--grey);font-size:12px;padding:16px}
+.tabs{display:flex;gap:6px;max-width:1300px;margin:12px auto 0;padding:0 16px}.tabs button{background:var(--soft);color:var(--ink);border:1px solid var(--line)}.tabs button.on{background:var(--ink);color:#fff}.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin:8px 0 14px}.tile{border:1px solid var(--line);border-radius:10px;padding:10px}.tile .n{font:800 24px Arial;color:var(--ink)}.tile .l{font-size:13px;color:var(--grey)}.tile .s{font-size:12px;color:var(--grey);margin-top:2px}.cols{display:grid;grid-template-columns:1fr 2fr;gap:16px}@media(max-width:800px){.cols{grid-template-columns:1fr}}h3{font-size:15px;margin:10px 0 6px}.cv{padding:4px 8px;font-size:14px;opacity:.55}.tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}footer{text-align:center;color:var(--grey);font-size:12px;padding:16px}
 </style>
 </head>
 <body>
@@ -28,7 +28,7 @@ textarea{min-height:70px}.p{display:block;padding:4px 0}.note{color:var(--grey);
 <div id="root"></div>
 <footer id="foot"></footer>
 <script>
-var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",VERSION:"0.1.1",UPDATED:"2026-11-21 11:30 PM ET",CONTRACT:"MBTA Contract C90CN01"};
+var DU3={API:"https://script.google.com/macros/s/AKfycbwnESB0g561XTQwIL6Ny7cc6O2fL3F-KG1ZdipoUOmStskWDB62py6kt7umc1UPs4kR/exec",VERSION:"0.2.0",UPDATED:"2026-11-22 12:05 AM ET",CONTRACT:"MBTA Contract C90CN01"};
 var PIN="",D=null,T=null;
 const $=id=>document.getElementById(id);
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -39,8 +39,10 @@ function signIn(msg){$("root").innerHTML=`<main style="grid-template-columns:1fr
 async function go(){PIN=$("pin").value.trim();await load(true)}
 async function load(first){try{D=await call("apiInbox",PIN);if(!D.console){D=null;PIN="";return signIn("This PIN cannot open CONSOLE.")}$("who").textContent=D.me.label;paint();if(first){if(T)clearInterval(T);T=setInterval(()=>{if(!document.querySelector("[id^=rt-]"))load(false)},60000)}}catch(e){if(first)signIn(e.message||String(e))}}
 function readLine(m){const r=m.read||{},k=Object.keys(r);return k.map(x=>esc(x)+": "+(r[x]?"read "+w(r[x]):"<b>not read</b>")).join("<br>")}
-function paint(){const sel={};document.querySelectorAll("input[data-p]:checked").forEach(c=>sel[c.value]=1);const txt=$("ct")?$("ct").value:"";
- $("root").innerHTML=`<main><div><section><h2>New message</h2><div class="tools"><button class="light" onclick="pick(1)">All</button><button class="light" onclick="pick('RLC')">RLC</button><button class="light" onclick="pick('L3H')">L3H</button><button class="light" onclick="pick(0)">None</button></div>
+var VIEW="dispatch";
+function tabs(){return D&&D.dev?`<div class="tabs"><button class="${VIEW==='dispatch'?'on':''}" onclick="VIEW='dispatch';paint()">Dispatch</button><button class="${VIEW==='dev'?'on':''}" onclick="VIEW='dev';paint()">Dev</button></div>`:""}
+function paint(){if(VIEW==="dev"&&D&&D.dev)return devPaint();const sel={};document.querySelectorAll("input[data-p]:checked").forEach(c=>sel[c.value]=1);const txt=$("ct")?$("ct").value:"";
+ $("root").innerHTML=tabs()+`<main><div><section><h2>New message</h2><div class="tools"><button class="light" onclick="pick(1)">All</button><button class="light" onclick="pick('RLC')">RLC</button><button class="light" onclick="pick('L3H')">L3H</button><button class="light" onclick="pick(0)">None</button></div>
  ${D.people.map(p=>`<label class="p"><input type="checkbox" data-p="1" data-c="${esc(p.company)}" value="${esc(p.label)}"${sel[p.label]?" checked":""}> ${esc(p.label)} <span class="note">${esc(p.company)}</span> <button class="light cv" onclick="event.preventDefault();startCall('voice','${esc(p.label)}')" title="Voice call (coming later)">📞</button><button class="light cv" onclick="event.preventDefault();startCall('video','${esc(p.label)}')" title="Video call (coming later)">🎥</button></label>`).join("")||`<p class="note">Nobody to send to.</p>`}
  <textarea id="ct" maxlength="500" placeholder="Message">${esc(txt)}</textarea><p></p><button class="red" onclick="send()">Send</button><div id="sendMsg"></div></section><p></p>
  <section><h2>Live call</h2><div id="callArea" class="note" style="min-height:120px;border:1px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px">Voice and video calls with field crews are coming later.<br>The call will show here.</div></section><p></p>
@@ -52,6 +54,21 @@ async function send(){const to=[...document.querySelectorAll("input[data-p]:chec
  try{await call("apiSend",PIN,to,t,"");$("ct").value="";document.querySelectorAll("input[data-p]").forEach(x=>x.checked=false);await load(false)}catch(e){$("sendMsg").innerHTML=`<div class="err">${esc(e.message||e)}</div>`}}
 function rOpen(id){$("rp-"+id).innerHTML=`<textarea id="rt-${id}" maxlength="500" placeholder="Reply"></textarea><button class="red" onclick="rSend('${id}')">Send reply</button>`}
 async function rSend(id){const t=$("rt-"+id).value.trim();if(!t)return;try{await call("apiSend",PIN,[],t,id);await load(false)}catch(e){$("rp-"+id).insertAdjacentHTML("afterbegin",`<div class="err">${esc(e.message||e)}</div>`)}}
+
+/* Dev tab (Dan 11/21 11:56 PM ET): developer exchange metrics; only PINs with Dev view = Y (Dan, Pao). Server checks too. */
+function hrs(h){if(h==null)return"–";return h<1?Math.round(h*60)+" min":h<48?h.toFixed(1)+" h":(h/24).toFixed(1)+" days"}
+async function devPaint(){$("root").innerHTML=tabs()+`<main style="grid-template-columns:1fr"><section><p class="note">Loading…</p></section></main>`;
+ let r;try{r=await call("apiDevMetrics",PIN)}catch(e){$("root").innerHTML=tabs()+`<main style="grid-template-columns:1fr"><section><div class="err">${esc(e.message||e)}</div></section></main>`;return}
+ const m=r.metrics;if(!m){$("root").innerHTML=tabs()+`<main style="grid-template-columns:1fr"><section><p class="note">No metrics yet.</p></section></main>`;return}
+ const t=(n,l,s)=>`<div class="tile"><div class="n">${n}</div><div class="l">${l}</div>${s?`<div class="s">${s}</div>`:""}</div>`;
+ const lanes=Object.keys(m.open_by_lane||{}).map(k=>`${esc(k)}: ${m.open_by_lane[k].open} open, oldest ${hrs(m.open_by_lane[k].oldest_h)}`).join("<br>")||"none";
+ const dirs=Object.keys(m.by_direction||{}).map(k=>`${esc(k.replace(">"," → "))}: ${m.by_direction[k]}`).join("<br>")||"none";
+ const ratio=m.fordan_words?Math.round(m.words_exchanged/m.fordan_words):0;
+ $("root").innerHTML=tabs()+`<main style="grid-template-columns:1fr"><section><h2>Developer exchange <span class="note">updated ${esc(r.updated)} · <a href="https://github.com/sst-works/du3-dev-exchange" target="_blank" rel="noopener">open repo</a></span></h2>
+ <div class="tiles">${t(m.waiting_on_dan.count,"waiting on you",m.waiting_on_dan.count?"oldest "+hrs(m.waiting_on_dan.oldest_h):"")}${t(m.messages_7d,"telegrams, last 7 days",m.messages_total+" in all")}${t(hrs(m.first_answer_h_avg),"average first answer",m.close_h_avg!=null?"close "+hrs(m.close_h_avg):"")}${t(m.contracts.open+" / "+m.contracts.merged+" / "+m.contracts.rejected,"contracts open / agreed / rejected","")}${t(m.readback_mismatches+" of "+m.readbacks,"read-back mismatches","")}${t(ratio?ratio+" : 1":"–","words boiled down for you",m.words_exchanged+" → "+m.fordan_words)}${t(m.untagged,"messages without a telegram header","should be 0")}</div>
+ <div class="cols"><div><h3>Waiting on you</h3>${m.waiting_on_dan.items.length?m.waiting_on_dan.items.map(i=>`<div class="m"><a href="https://github.com/sst-works/du3-dev-exchange/issues/${i.ref}" target="_blank" rel="noopener">#${i.ref}</a> ${esc(i.title)}</div>`).join(""):`<p class="note">Nothing.</p>`}
+ <h3>Open by lane</h3><p>${lanes}</p><h3>Who is talking</h3><p>${dirs}</p></div>
+ <div><h3>Latest, in plain English</h3>${(m.feed||[]).map(f=>`<div class="m"><div class="h">${esc(String(f.when).slice(5,16).replace("T"," "))} UTC · ${esc(f.from)} → ${esc(f.to)} · ${esc(f.type)} · <a href="https://github.com/sst-works/du3-dev-exchange/issues/${f.ref}" target="_blank" rel="noopener">#${f.ref}</a></div><div class="t">${esc(f.fordan)}</div></div>`).join("")||`<p class="note">No telegrams yet.</p>`}</div></div></section></main>`}
 /* Voice and video (later phase): needs the DU3 field phone app on the crew's phone. Hook kept. */
 function startCall(kind,who){const a=$("callArea");if(a)a.innerHTML=(kind==="video"?"Video":"Voice")+" call to "+esc(who)+": coming later. For now, call by phone."}
 signIn();
